@@ -1,6 +1,6 @@
 # 提交到 `harryma03/piper-` 的目录与路径约定
 
-2026-10-13 查看 [目标仓库](https://github.com/harryma03/piper-) 时仓库为空，尚无默认分支或现有目录需要兼容。以下布局以仓库根目录作为 ROS 2 工作区根目录；克隆到任意用户名、任意目录名均可。
+2026-10-13 首次提交前，[目标仓库](https://github.com/harryma03/piper-) 为空，因此采用仓库根目录作为 ROS 2 工作区根目录；克隆到任意用户名、任意目录名均可。
 
 提交对应的实机为 **AgileX Piper 六轴机械臂 + 原厂 `agx_gripper` 夹爪**，腕部相机为 **PointSpread OKULO-C1W-H106/940**。`ROBOT_PIPERX` 只是旧工作区名；驱动按 `arm_type:=piper` 配置，实机手眼外参对应 `link6 → camera_depth_frame`。
 
@@ -45,6 +45,6 @@ ros2 run piperx_lab handeye_solve --samples calibration/samples --out /tmp/piper
 
 运行脚本从自身位置找到工作区，ROS 包从安装索引找到官方 URDF。`handeye_capture`、`handeye_solve` 和 `target_base` 的默认实机数据路径由仓库根目录定位，不再取决于终端当前目录。若使用非 symlink 安装并在仓库外运行，可设 `PIPER_LAB_WORKSPACE=/实际/克隆/目录`。`calibration/samples/` 与 Piper 仿真样本中的 `board_json`、`color_image`、`detected_image` 均相对各自 JSON 文件；搬迁后仍可打开。`calibration/handeye_result.json` 的 `source_samples` 是相对仓库根目录的记录，仅作溯源，求解和坐标转换不依赖这些路径。
 
-当前 GitHub 仓库没有分支，因此尚不能检查仓库分支保护或与师兄已有代码的冲突。本文件只准备本地提交结构；尚未向远端推送。
+项目已由 `bluecobaltum` 提交到 `main`。后续若师兄向仓库添加其他目录或配置，再以远端当前内容为准核对兼容性。
 
 目标仓库的页面目前无需登录即可访问。上述提交布局包含 12 组实机彩图和标注图，以及相机序列号；正式推送前应由项目成员确认这些资料适合公开。
