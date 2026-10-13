@@ -1,0 +1,9 @@
+repositories:
+  agx_arm_ros:
+    type: git
+    url: https://github.com/agilexrobotics/agx_arm_ros.git
+    version: e4ccec1999279d063c2962030b9437b78b0d0db6
+  pyAgxArm:
+    type: git
+    url: https://github.com/agilexrobotics/pyAgxArm.git
+    version: 841a625f5f4920e776f20b934eb13048b747e6d0

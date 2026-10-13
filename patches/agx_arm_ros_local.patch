@@ -1,0 +1,15 @@
+diff --git a/src/agx_arm_moveit/launch/demo.launch.py b/src/agx_arm_moveit/launch/demo.launch.py
+index 5b5372c..346236c 100644
+--- a/src/agx_arm_moveit/launch/demo.launch.py
++++ b/src/agx_arm_moveit/launch/demo.launch.py
+@@ -162,6 +162,7 @@ def _build_moveit(context):
+                 {
+                     "status_topics": [
+                         "arm_controller/follow_joint_trajectory/_action/status",
++                        "gripper_controller/follow_joint_trajectory/_action/status",
+                     ],
+                     "gate_service_name": LaunchConfiguration("control_gate_service"),
+                 }
+diff --git a/src/agx_arm_moveit/scripts/agx_arm_control_gate b/src/agx_arm_moveit/scripts/agx_arm_control_gate
+old mode 100644
+new mode 100755

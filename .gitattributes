@@ -1,0 +1,5 @@
+# Camera evidence and the printable board are binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary

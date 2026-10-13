@@ -1,0 +1,26 @@
+// ArUco 标定板贴图的 Ogre 材质定义。
+// Gazebo classic 用 Ogre 渲染，贴图要靠这个 .material 文件挂上去。
+//
+// 名字 CalibBoard/Pattern 必须和 model.sdf 里 <name> 写的一致。
+// 贴图路径是相对于 <uri> 里声明的 textures 目录的。
+
+material CalibBoard/Pattern
+{
+  technique
+  {
+    pass
+    {
+      // 标定板要尽量"平"：不要高光、不要环境反射，
+      // 否则角点检测会被强光下的镜面反射坑到
+      ambient  0.9 0.9 0.9 1.0
+      diffuse  0.9 0.9 0.9 1.0
+      specular 0.0 0.0 0.0 1.0
+
+      texture_unit
+      {
+        texture calib_board.png
+        filtering trilinear
+      }
+    }
+  }
+}

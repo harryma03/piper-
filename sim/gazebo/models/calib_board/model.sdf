@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+  手眼标定用的标定板。
+
+  坐标系约定（很重要，检测代码必须和它一致）:
+    模型原点 = 板面（贴了图案的那一面）的中心。
+    也就是说 box 在模型坐标系里占 z ∈ [-0.01, 0]，
+    「板面」正好落在模型 z = 0 平面上 —— 这样模型位姿和板面位姿是同一个，少一层换算。
+
+  要放到地面上时，spawn 的 z 写 0.01（板厚 1cm）。
+  板面在「贴图左上角那个角」上还有个 board_frame 原点，定义见 board.json。
+-->
+<sdf version="1.6">
+  <model name="calib_board">
+    <static>true</static>
+
+    <link name="board_link">
+      <!-- 往下挪半个板厚，让板面正好落在模型 z=0 -->
+      <pose>0 0 -0.005 0 0 0</pose>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.20 0.20 0.01</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.20 0.20 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://calib_board/materials/scripts</uri>
+            <uri>model://calib_board/materials/textures</uri>
+            <name>CalibBoard/Pattern</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

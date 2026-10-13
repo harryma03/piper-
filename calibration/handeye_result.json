@@ -1,0 +1,55 @@
+{
+  "method": "OpenCV PARK eye-in-hand",
+  "sample_count": 12,
+  "arm_orientation_spread_deg": 49.99200000000002,
+  "T_wrist_camera": [
+    [
+      0.00898809594161384,
+      0.9998481163869901,
+      0.014931787861219658,
+      -0.1029633319518096
+    ],
+    [
+      -0.9999163691523381,
+      0.00884784537694424,
+      0.009432408671871433,
+      -0.018615173584863556
+    ],
+    [
+      0.009298861893366636,
+      -0.01501531849724708,
+      0.9998440235246265,
+      0.03295854358204854
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "fixed_board_position_spread_max_m": 0.005816352167660206,
+  "fixed_board_rotation_spread_max_deg": 1.3042724126994267,
+  "camera_frame": "camera_depth_frame",
+  "robot": "piper",
+  "camera": "OKULO-C1W-H106/940",
+  "mode": "real",
+  "base_frame": "base_link",
+  "wrist_frame": "link6",
+  "source_samples": [
+    "calibration/samples/1791896080_368365465.json",
+    "calibration/samples/1791896090_538487395.json",
+    "calibration/samples/1791896098_858227273.json",
+    "calibration/samples/1791896107_668306091.json",
+    "calibration/samples/1791896116_354508111.json",
+    "calibration/samples/1791896125_326886793.json",
+    "calibration/samples/1791896135_561952925.json",
+    "calibration/samples/1791896143_691974952.json",
+    "calibration/samples/1791896153_505889226.json",
+    "calibration/samples/1791896162_198993700.json",
+    "calibration/samples/1791896173_401958260.json",
+    "calibration/samples/1791896183_568715855.json"
+  ],
+  "mean_reprojection_rms_px": 1.5934955048694202,
+  "quality_pass": true
+}

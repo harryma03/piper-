@@ -1,0 +1,55 @@
+{
+  "method": "OpenCV PARK eye-in-hand",
+  "sample_count": 12,
+  "arm_orientation_spread_deg": 28.647889756543197,
+  "T_wrist_camera": [
+    [
+      -0.00047598704927815456,
+      0.19676422809863478,
+      0.9804507187906374,
+      0.03792476524600401
+    ],
+    [
+      0.9999990677336111,
+      0.0013484689915983456,
+      0.00021485643413499022,
+      0.001776137760421377
+    ],
+    [
+      -0.0012798313316647071,
+      0.980449907018266,
+      -0.19676468651573484,
+      -0.04553191816794945
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "fixed_board_position_spread_max_m": 0.0008015218879293725,
+  "fixed_board_rotation_spread_max_deg": 0.25436768178070335,
+  "camera_frame": "camera_depth_frame",
+  "robot": "piper",
+  "camera": "Gazebo ideal camera",
+  "mode": "sim",
+  "base_frame": "base_link",
+  "wrist_frame": "link6",
+  "source_samples": [
+    "records/gazebo_piper_handeye/samples/121_227000000.json",
+    "records/gazebo_piper_handeye/samples/126_694000000.json",
+    "records/gazebo_piper_handeye/samples/134_227000000.json",
+    "records/gazebo_piper_handeye/samples/140_294000000.json",
+    "records/gazebo_piper_handeye/samples/146_227000000.json",
+    "records/gazebo_piper_handeye/samples/153_500000000.json",
+    "records/gazebo_piper_handeye/samples/159_700000000.json",
+    "records/gazebo_piper_handeye/samples/165_634000000.json",
+    "records/gazebo_piper_handeye/samples/170_034000000.json",
+    "records/gazebo_piper_handeye/samples/175_101000000.json",
+    "records/gazebo_piper_handeye/samples/182_234000000.json",
+    "records/gazebo_piper_handeye/samples/186_634000000.json"
+  ],
+  "mean_reprojection_rms_px": 0.36148032576155126,
+  "quality_pass": true
+}

@@ -1,0 +1,27 @@
+# ROS 2 build products and local work
+/build/
+/install/
+/log/
+/.path_migration_backup/
+/PIPERX/
+/tmp/
+/sdk/
+
+# AgileX is fetched at a pinned revision from upstream; keep its nested Git
+# checkout out of this repository and apply patches/agx_arm_ros_local.patch.
+/src/agx_arm_ros/
+/src/pyAgxArm/
+
+# Keep the current Piper simulation evidence, but not incidental screen captures.
+/records/*
+!/records/gazebo_piper_handeye/
+/calibration/samples_old/
+
+# Share the printable board, not generated archives.
+/output/*
+!/output/pdf/
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
