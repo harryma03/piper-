@@ -84,7 +84,7 @@ Vidu SDK 提供 IMU 读取接口：`GetImuData()` 可读取三轴陀螺仪 `Gyro
 
 ### Gazebo 手眼标定演示
 
-Gazebo Classic 现在使用官方 Piper + 原厂夹爪模型、工作台上的同一张 ArUco 板，以及固定在 `link6` 上的**模拟相机**。相机安装外参是人为设定的真值，仅用于验证采集与求解流程，不能写入实机的 `calibration/handeye_result.json`。Gazebo 相机是理想彩色相机，不模拟 OKULO 深度噪声或真实镜头畸变。
+Gazebo Classic 手眼演示使用官方 Piper + 原厂夹爪模型、工作台上的 ArUco 板，以及固定在 `link6` 上的**不可见模拟相机传感器**。传感器没有可见方块，也没有方块碰撞体。相机安装外参是人为设定的真值，仅用于验证采集与求解流程，不能写入实机的 `calibration/handeye_result.json`。Gazebo 相机是理想彩色相机，不模拟 OKULO 深度噪声或真实镜头畸变。
 
 在工作区根目录的不同终端启动以下进程（每个终端先执行 `source /opt/ros/humble/setup.bash && source install/setup.bash && export ROS_DOMAIN_ID=78`，与当前实机相机的默认 ROS 域隔离）：
 
@@ -117,20 +117,23 @@ ros2 run piperx_lab handeye_solve --mode sim --samples records/gazebo_piper_hand
 
 ### 在 Gazebo 中显示实机相机中心
 
-要看实机标定得到的相机中心，生成模型时加 `--real-camera-center`。Gazebo 中的**紫色发光球**表示实机 `camera_depth_frame` 原点，它固定在 `link6` 上；原有的蓝色盒子仍是用于仿真采集的标称相机，不能当作实机外形或安装位置。加上 `--frozen-sample` 可将实机采集时保存的六关节角固定在模型中，并额外生成一份静态 SDF，便于稳定查看和截图。
+相机中心展示使用独立的 `camera_center.world`，场景中只有地面和机械臂，没有工作台或虚拟标定板。生成模型时加 `--real-camera-center`，Gazebo 中的**紫色发光球**表示实机 `camera_depth_frame` 原点，它固定在 `link6` 上。加上 `--frozen-sample` 可将实机采集时保存的六关节角固定在模型中，并额外生成一份静态 SDF；这份模型不包含模拟相机传感器。
 
 ```bash
 python3 sim/gazebo/make_robot.py /tmp/piper_camera_center.urdf \
   --real-camera-center calibration/handeye_result.json \
   --frozen-sample calibration/samples/1791896080_368365465.json
 
-# 按上节启动 Gazebo 服务后加载静态 SDF；可运行 gzclient 查看三维场景
+# 另一个终端按上节设置 ROS 与 Gazebo 环境变量后，启动无工作台、无虚拟标定板的场景
+gzserver sim/gazebo/worlds/camera_center.world -s libgazebo_ros_init.so -s libgazebo_ros_factory.so
+
+# 再开终端加载静态 SDF；可运行 gzclient 查看三维场景
 ros2 run gazebo_ros spawn_entity.py -entity piper_camera_center -file /tmp/piper_camera_center.sdf
 ros2 run robot_state_publisher robot_state_publisher /tmp/piper_camera_center.urdf \
   --ros-args -p use_sim_time:=true
 ```
 
-示例样本保存的六关节角约为 `[3.59, 140.55, -108.98, -4.89, 57.94, 1.98]°`。按该样本保存的 `T_base_wrist` 和实机手眼外参计算，相机中心在 `base_link` 约为 **(0.5917, 0.0107, 0.0684) m**；Gazebo 中查询到紫色球的坐标为 **(0.591657, 0.010675, 0.068351) m**。球体只用于可视化，不代表相机壳体尺寸。固定姿态模型仅用于观察，不能用它执行关节轨迹或仿真手眼采集。要运行原有的动态仿真流程，继续使用不带 `--frozen-sample` 的模型。已有 Gazebo 进程时需删除旧模型并重新生成模型，才能看到球体。
+示例样本保存的六关节角约为 `[3.59, 140.55, -108.98, -4.89, 57.94, 1.98]°`。按该样本保存的 `T_base_wrist` 和实机手眼外参计算，相机中心在 `base_link` 约为 **(0.5917, 0.0107, 0.0684) m**；Gazebo 中查询到紫色球的坐标为 **(0.591657, 0.010675, 0.068351) m**。球体只用于可视化，不代表相机壳体尺寸。固定姿态模型仅用于观察，不能用它执行关节轨迹或仿真手眼采集；手眼演示仍使用独立的 `handeye.world`。已有 Gazebo 进程时需先关闭旧场景并重新启动 `camera_center.world`。
 
 ![Gazebo 中的 Piper 实机相机中心（紫色球）](docs/gazebo_real_camera_center.png)
 
