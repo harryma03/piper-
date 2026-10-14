@@ -6,11 +6,18 @@ mount.
 """
 
 import argparse
+import json
+import math
 from pathlib import Path
+import subprocess
 import xml.etree.ElementTree as ET
 
 from ament_index_python.packages import get_package_share_directory
+import numpy as np
+from scipy.spatial.transform import Rotation
 import xacro
+from piperx_lab.model import ARM_JOINTS, installed_urdf_path, read_joint_limits
+from piperx_lab.transforms import load_handeye
 
 
 CAMERA_XYZ = '0.035 0 -0.045'
@@ -24,10 +31,85 @@ def add(parent, tag, attributes=None, text=None):
     return child
 
 
+def add_real_camera_center(root, handeye_path: Path):
+    """Draw the measured depth-frame origin as a marker fixed to link6."""
+    calibration = load_handeye(handeye_path)
+    if not calibration['quality_pass']:
+        raise ValueError(f'Real hand-eye result failed its quality check: {handeye_path}')
+    xyz = calibration['T_wrist_camera'][:3, 3]
+    center = add(root, 'link', {'name': 'real_camera_center'})
+    inertial = add(center, 'inertial')
+    add(inertial, 'mass', {'value': '0.0001'})
+    add(inertial, 'inertia', {'ixx': '0.00000001', 'ixy': '0', 'ixz': '0',
+                              'iyy': '0.00000001', 'iyz': '0', 'izz': '0.00000001'})
+    visual = add(center, 'visual')
+    add(add(visual, 'geometry'), 'sphere', {'radius': '0.015'})
+    material = add(visual, 'material', {'name': 'real_camera_center_magenta'})
+    add(material, 'color', {'rgba': '1 0.05 0.65 1'})
+    mount = add(root, 'joint', {'name': 'real_camera_center_mount', 'type': 'fixed'})
+    add(mount, 'parent', {'link': 'link6'})
+    add(mount, 'child', {'link': 'real_camera_center'})
+    add(mount, 'origin', {'xyz': ' '.join(f'{value:.9f}' for value in xyz),
+                          'rpy': '0 0 0'})
+    appearance = add(root, 'gazebo', {'reference': 'real_camera_center'})
+    add(appearance, 'material', text='Gazebo/PurpleGlow')
+    gazebo = add(root, 'gazebo', {'reference': 'real_camera_center_mount'})
+    add(gazebo, 'preserveFixedJoint', text='true')
+    return xyz
+
+
+def freeze_real_sample(root, sample_path: Path, handeye_path: Path):
+    """Bake saved joint angles into fixed URDF joints for a stable Gazebo view."""
+    sample = json.loads(sample_path.read_text(encoding='utf-8'))
+    calibration = load_handeye(handeye_path)
+    if ((sample.get('robot'), sample.get('mode'), sample.get('base_frame'),
+         sample.get('wrist_frame'), sample.get('camera_frame')) !=
+            ('piper', 'real', 'base_link', 'link6', calibration['camera_frame'])):
+        raise ValueError('Expected a compatible real Piper sample at link6')
+    limits = read_joint_limits(installed_urdf_path())
+    for name in ARM_JOINTS:
+        angle = float(sample['joint_positions_rad'][name])
+        if not math.isfinite(angle) or not limits[name][0] <= angle <= limits[name][1]:
+            raise ValueError(f'{name} is outside the Piper model limits')
+        joint = root.find(f"joint[@name='{name}']")
+        if joint is None or joint.get('type') not in ('revolute', 'continuous'):
+            raise ValueError(f'Expected a revolute URDF joint: {name}')
+        origin = joint.find('origin')
+        axis = joint.find('axis')
+        rpy = [float(value) for value in origin.get('rpy', '0 0 0').split()]
+        xyz = np.array([float(value) for value in axis.get('xyz').split()])
+        axis_length = np.linalg.norm(xyz)
+        if axis_length == 0:
+            raise ValueError(f'Empty axis for {name}')
+        orientation = Rotation.from_euler('xyz', rpy) * Rotation.from_rotvec(
+            angle * xyz / axis_length)
+        origin.set('rpy', ' '.join(f'{value:.12f}' for value in
+                                     orientation.as_euler('xyz')))
+        joint.set('type', 'fixed')
+        for tag in ('axis', 'limit', 'dynamics', 'safety_controller', 'calibration'):
+            for element in joint.findall(tag):
+                joint.remove(element)
+    world_joint = root.find("joint[@name='world_to_base_link']")
+    world_link = root.find("link[@name='world']")
+    if world_joint is not None:
+        root.remove(world_joint)
+    if world_link is not None:
+        root.remove(world_link)
+    print(f'Fixed six Piper joints to real sample {sample_path}')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('output', type=Path)
+    parser.add_argument('--real-camera-center', type=Path, metavar='HANDEYE_JSON',
+                        help='Show the real calibrated camera_depth_frame origin as a magenta sphere')
+    parser.add_argument('--frozen-sample', type=Path, metavar='SAMPLE_JSON',
+                        help='Fix the six arm joints to a real calibration sample for a stable Gazebo view')
     args = parser.parse_args()
+    if args.frozen_sample and not args.real_camera_center:
+        parser.error('--frozen-sample requires --real-camera-center')
+    if args.frozen_sample and args.output.suffix.lower() != '.urdf':
+        parser.error('a frozen model output path must end in .urdf')
     share = Path(get_package_share_directory('agx_arm_description'))
     source = share / 'agx_arm_urdf/piper/urdf/piper_with_gripper_description.xacro'
     root = ET.fromstring(xacro.process_file(str(source)).toxml())
@@ -59,6 +141,12 @@ def main():
     add(optical, 'parent', {'link': 'camera_link'})
     add(optical, 'child', {'link': 'camera_depth_frame'})
     add(optical, 'origin', {'xyz': '0 0 0', 'rpy': '-1.5707963 0 -1.5707963'})
+
+    real_center_xyz = None
+    if args.real_camera_center:
+        real_center_xyz = add_real_camera_center(root, args.real_camera_center)
+    if args.frozen_sample:
+        freeze_real_sample(root, args.frozen_sample, args.real_camera_center)
 
     for link in root.findall('link'):
         gazebo = add(root, 'gazebo', {'reference': link.attrib['name']})
@@ -104,8 +192,26 @@ def main():
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(root).write(args.output, encoding='unicode', xml_declaration=False)
+    if args.frozen_sample:
+        converted = subprocess.run(['gz', 'sdf', '-p', str(args.output)],
+                                   check=True, capture_output=True, text=True)
+        sdf_root = ET.fromstring(converted.stdout)
+        model = sdf_root.find('model')
+        if model is None:
+            raise ValueError('Gazebo did not generate a model from the frozen URDF')
+        static = model.find('static')
+        if static is None:
+            static = add(model, 'static')
+        static.text = 'true'
+        sdf_path = args.output.with_suffix('.sdf')
+        ET.ElementTree(sdf_root).write(sdf_path, encoding='unicode',
+                                       xml_declaration=False)
+        print(f'Saved static Gazebo model {sdf_path}')
     print(f'Saved {args.output}; nominal T_link6_camera_link xyz={CAMERA_XYZ} '
           f'rpy={CAMERA_RPY}')
+    if real_center_xyz is not None:
+        print('Magenta real camera center relative to link6: '
+              + ' '.join(f'{value:+.6f}' for value in real_center_xyz) + ' m')
 
 
 if __name__ == '__main__':

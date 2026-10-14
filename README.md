@@ -115,6 +115,25 @@ ros2 run piperx_lab handeye_solve --mode sim --samples records/gazebo_piper_hand
 
 新的 Piper Gazebo 演示已重新运行：`records/gazebo_piper_handeye/` 下有 12 组有效样本，平均重投影误差 **0.36 像素**，固定板最大位置散差 **0.8 毫米**、最大角度散差 **0.25°**，`quality_pass=true`。解出的相机外参与仿真设定值相比，平移误差约 **3.5 毫米**、旋转误差约 **0.10°**。标注画面在 `records/gazebo_piper_handeye/board_check_111_622000000.jpg`，矩阵在 `records/gazebo_piper_handeye/handeye_result.json`。这些仍是模拟结果，不能代替实机标定。
 
+### 在 Gazebo 中显示实机相机中心
+
+要看实机标定得到的相机中心，生成模型时加 `--real-camera-center`。Gazebo 中的**紫色发光球**表示实机 `camera_depth_frame` 原点，它固定在 `link6` 上；原有的蓝色盒子仍是用于仿真采集的标称相机，不能当作实机外形或安装位置。加上 `--frozen-sample` 可将实机采集时保存的六关节角固定在模型中，并额外生成一份静态 SDF，便于稳定查看和截图。
+
+```bash
+python3 sim/gazebo/make_robot.py /tmp/piper_camera_center.urdf \
+  --real-camera-center calibration/handeye_result.json \
+  --frozen-sample calibration/samples/1791896080_368365465.json
+
+# 按上节启动 Gazebo 服务后加载静态 SDF；可运行 gzclient 查看三维场景
+ros2 run gazebo_ros spawn_entity.py -entity piper_camera_center -file /tmp/piper_camera_center.sdf
+ros2 run robot_state_publisher robot_state_publisher /tmp/piper_camera_center.urdf \
+  --ros-args -p use_sim_time:=true
+```
+
+示例样本保存的六关节角约为 `[3.59, 140.55, -108.98, -4.89, 57.94, 1.98]°`。按该样本保存的 `T_base_wrist` 和实机手眼外参计算，相机中心在 `base_link` 约为 **(0.5917, 0.0107, 0.0684) m**；Gazebo 中查询到紫色球的坐标为 **(0.591657, 0.010675, 0.068351) m**。球体只用于可视化，不代表相机壳体尺寸。固定姿态模型仅用于观察，不能用它执行关节轨迹或仿真手眼采集。要运行原有的动态仿真流程，继续使用不带 `--frozen-sample` 的模型。已有 Gazebo 进程时需删除旧模型并重新生成模型，才能看到球体。
+
+![Gazebo 中的 Piper 实机相机中心（紫色球）](docs/gazebo_real_camera_center.png)
+
 接通 Piper 后，以 `bash scripts/start_real.sh --can can0` 启动驱动，另启 `bash scripts/start_camera.sh`。每将机械臂移到一个能够清楚看到标定板的姿态，待它停止，再从工作区根目录运行一次：
 
 ```bash
