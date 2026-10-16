@@ -15,6 +15,7 @@
 # Keep the current Piper simulation evidence, but not incidental screen captures.
 /records/*
 !/records/gazebo_piper_handeye/
+!/records/gazebo_vision/
 /calibration/samples_old/
 
 # Share the printable board, not generated archives.

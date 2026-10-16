@@ -11,11 +11,14 @@ import time
 import cv2
 import numpy as np
 import rclpy
+from rclpy.utilities import remove_ros_args
 from geometry_msgs.msg import PointStamped
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from sensor_msgs.msg import CameraInfo, Image
 from std_msgs.msg import Float32
+
+from piperx_lab.handeye import deproject_pixel
 
 
 HSV_RANGES = {
@@ -57,12 +60,6 @@ def detect_colored_point(color: np.ndarray, depth: np.ndarray, info: CameraInfo,
     """Return camera-frame XYZ in metres plus image measurements, or None."""
     if color.shape[:2] != depth.shape or depth.shape != (info.height, info.width):
         raise ValueError('Aligned color, depth, and depth CameraInfo dimensions disagree')
-    if info.distortion_model not in ('brown_conrady', 'plumb_bob'):
-        raise ValueError(f'Unsupported depth distortion model: {info.distortion_model!r}')
-    k = np.asarray(info.k, dtype=np.float64).reshape(3, 3)
-    d = np.asarray(info.d, dtype=np.float64)
-    if not np.all(np.isfinite(k)) or k[0, 0] <= 0 or k[1, 1] <= 0 or not np.all(np.isfinite(d)):
-        raise ValueError('Invalid live depth camera calibration')
     if not math.isfinite(range_m) or range_m <= 0:
         raise ValueError('Invalid depth range')
 
@@ -77,21 +74,33 @@ def detect_colored_point(color: np.ndarray, depth: np.ndarray, info: CameraInfo,
         return None
     label = max(candidates, key=lambda i: stats[i, cv2.CC_STAT_AREA])
     mask = labels == label
+    # Avoid mixed foreground/background depth at the color-region boundary.
+    inner = cv2.erode(mask.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
+    if int(inner.sum()) >= max(20, min_area // 4):
+        mask = inner
     valid = mask & (depth > 0)
     if int(valid.sum()) < max(20, min_area // 4):
         return None
     ys, xs = np.nonzero(valid)
-    u, v = float(np.median(xs)), float(np.median(ys))
-    depth_raw = float(np.median(depth[valid]))
+    # Select an actual foreground pixel near the region's median position. Use
+    # depth from that same local patch, so the reported ray and Z agree even
+    # when an object has several visible faces or a non-convex color mask.
+    nearest = np.argmin((xs - np.median(xs)) ** 2 + (ys - np.median(ys)) ** 2)
+    u, v = int(xs[nearest]), int(ys[nearest])
+    y0, y1 = max(0, v - 2), min(depth.shape[0], v + 3)
+    x0, x1 = max(0, u - 2), min(depth.shape[1], u + 3)
+    patch = depth[y0:y1, x0:x1][valid[y0:y1, x0:x1]]
+    depth_raw = float(np.median(patch))
     z = depth_raw * range_m / 65535.0
-    normalized = cv2.undistortPoints(np.array([[[u, v]]], np.float64), k, d)[0, 0]
-    x, y = float(normalized[0] * z), float(normalized[1] * z)
+    x, y, z = (float(value) for value in deproject_pixel((u, v), z, info))
     return {
         'pixel': [u, v],
         'xyz_m': [x, y, z],
         'color_area_px': int(stats[label, cv2.CC_STAT_AREA]),
         'valid_depth_px': int(valid.sum()),
         'depth_raw_median': depth_raw,
+        'depth_sample_px': int(patch.size),
+        'position_kind': 'visible_surface',
     }
 
 
@@ -103,15 +112,17 @@ def detect_red_point(color: np.ndarray, depth: np.ndarray, info: CameraInfo,
 
 class CameraTarget(Node):
     def __init__(self, range_m: float | None, once: bool, target_color: str,
-                 save_frame: Path | None):
+                 save_frame: Path | None, source: str = 'real'):
         super().__init__('piperx_camera_target')
         self.range_m = range_m
         self.manual_range = range_m is not None
         self.once = once
         self.target_color = target_color
+        self.source = source
         self.save_frame = save_frame
         self.require_target = save_frame is not None
         self.finished = False
+        self.failed = False
         self.last_report = 0.0
         self.frames = OrderedDict()
         self.pub = self.create_publisher(PointStamped, '/piperx/target_camera', 10)
@@ -149,10 +160,11 @@ class CameraTarget(Node):
                                           self.target_color)
         except ValueError as exc:
             self.get_logger().error(str(exc))
-            self.finished = self.once and not self.require_target
+            self.failed = self.once
+            self.finished = self.once
             return
         report = {
-            'source': 'live Vidu ROS 2 wrapper',
+            'source': 'Vidu ROS 2 wrapper' if self.source == 'real' else 'Gazebo RGB-D bridge',
             'frame_id': bundle['depth'].header.frame_id,
             'stamp': {'sec': bundle['depth'].header.stamp.sec,
                       'nanosec': bundle['depth'].header.stamp.nanosec},
@@ -194,6 +206,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Read-only Okulo color-target observer')
     parser.add_argument('--color', choices=tuple(HSV_RANGES), default='red',
                         help='Target color; default red')
+    parser.add_argument('--source', choices=('real', 'sim'), default='real',
+                        help='Data source label for the shared RGB-D processing path')
     parser.add_argument('--save-frame', type=Path,
                         help='Save the first detected frame with center and XYZ overlay')
     parser.add_argument('--once', action='store_true',
@@ -201,13 +215,14 @@ def main(argv=None):
     parser.add_argument('--timeout', type=float, default=10.0, help='Seconds to wait with --once')
     parser.add_argument('--depth-range', type=float,
                         help='Override live /camera/depth_range in metres')
-    args = parser.parse_args(argv)
+    args = parser.parse_args(remove_ros_args(args=sys.argv)[1:] if argv is None else argv)
     if args.depth_range is not None and (not math.isfinite(args.depth_range) or args.depth_range <= 0):
         parser.error('--depth-range must be positive')
     if not math.isfinite(args.timeout) or args.timeout <= 0:
         parser.error('--timeout must be positive')
     rclpy.init()
-    node = CameraTarget(args.depth_range, args.once, args.color, args.save_frame)
+    node = CameraTarget(args.depth_range, args.once, args.color, args.save_frame,
+                        args.source)
     try:
         deadline = time.monotonic() + args.timeout
         while rclpy.ok() and not node.finished:
@@ -216,7 +231,7 @@ def main(argv=None):
                 pending = 'a detected target' if args.save_frame else 'a synchronized Okulo frame'
                 print(f'Timed out waiting for {pending}', file=sys.stderr)
                 return 1
-        return 0
+        return 1 if node.failed else 0
     except (KeyboardInterrupt, ExternalShutdownException):
         return 0
     finally:

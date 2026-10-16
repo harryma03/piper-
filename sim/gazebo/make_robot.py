@@ -105,9 +105,13 @@ def main():
                         help='Show the real calibrated camera_depth_frame origin as a magenta sphere')
     parser.add_argument('--frozen-sample', type=Path, metavar='SAMPLE_JSON',
                         help='Fix the six arm joints to a real calibration sample for a stable Gazebo view')
+    parser.add_argument('--rgbd', action='store_true',
+                        help='Use a depth camera that provides aligned RGB and optical-Z depth')
     args = parser.parse_args()
     if args.frozen_sample and not args.real_camera_center:
         parser.error('--frozen-sample requires --real-camera-center')
+    if args.frozen_sample and args.rgbd:
+        parser.error('--rgbd requires the dynamic Gazebo model')
     if args.frozen_sample and args.output.suffix.lower() != '.urdf':
         parser.error('a frozen model output path must end in .urdf')
     share = Path(get_package_share_directory('agx_arm_description'))
@@ -149,7 +153,8 @@ def main():
         add(preserve, 'preserveFixedJoint', text='true')
 
         gazebo = add(root, 'gazebo', {'reference': 'camera_link'})
-        sensor = add(gazebo, 'sensor', {'name': 'handeye_color', 'type': 'camera'})
+        sensor = add(gazebo, 'sensor', {'name': 'handeye_color',
+                                        'type': 'depth' if args.rgbd else 'camera'})
         add(sensor, 'always_on', text='true')
         add(sensor, 'update_rate', text='15')
         camera_sensor = add(sensor, 'camera', {'name': 'handeye_color'})
@@ -158,6 +163,8 @@ def main():
         add(image, 'width', text='640')
         add(image, 'height', text='480')
         add(image, 'format', text='R8G8B8')
+        if args.rgbd:
+            add(camera_sensor, 'depth_camera')
         clip = add(camera_sensor, 'clip')
         add(clip, 'near', text='0.02')
         add(clip, 'far', text='3.0')
@@ -167,6 +174,9 @@ def main():
         add(ros, 'namespace', text='/sim/camera')
         add(plugin, 'camera_name', text='aligned')
         add(plugin, 'frame_name', text='camera_depth_frame')
+        if args.rgbd:
+            add(plugin, 'min_depth', text='0.02')
+            add(plugin, 'max_depth', text='3.0')
 
     if not args.frozen_sample:
         model_gazebo = add(root, 'gazebo')
@@ -204,8 +214,8 @@ def main():
         print(f'Saved static Gazebo model {sdf_path}')
     print(f'Saved {args.output}')
     if not args.frozen_sample:
-        print(f'Invisible simulated sensor: T_link6_camera_link xyz={CAMERA_XYZ} '
-              f'rpy={CAMERA_RPY}')
+        print(f'Invisible simulated {"RGB-D" if args.rgbd else "color"} sensor: '
+              f'T_link6_camera_link xyz={CAMERA_XYZ} rpy={CAMERA_RPY}')
     if real_center_xyz is not None:
         print('Magenta real camera center relative to link6: '
               + ' '.join(f'{value:+.6f}' for value in real_center_xyz) + ' m')

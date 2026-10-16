@@ -72,7 +72,13 @@ ros2 run piperx_lab camera_target --color red
 ros2 run piperx_lab camera_target --color red --once --save-frame records/red_target.png
 ```
 
-先前连接 C1N 相机时实测：原始彩色图 1920×1080，深度和对齐彩色图 640×480，畸变模型为 `brown_conrady`；深度图为 `16UC1`，量程约 **2.4983 m**。这些数值不能直接套用到现在的 C1W；当前 C1W 实机标定样本的对齐图为 640×480，深度内参畸变模型为 `kannala_brandt4`。相机节点从实时 `/camera/info/depth` 和 `/camera/depth_range` 读取当前设备参数。`camera_target` 只读彩色与深度，按指定颜色选取最大连通区域，每秒报告像素位置和相机坐标系下的三维位置，并将有效目标发布到保留的兼容话题 `/piperx/target_camera`。这属于颜色区域定位，尚不能区分同色的不同物体类别；光照变化时需调整 HSV 阈值。先前 C1N 的红色区域检测记录不代表当前 C1W 的新测试结果。当前 C1W 已有实机手眼外参，但目标在基座坐标系下的准确度和实机抓取仍需现场验证。
+先前连接 C1N 相机时实测：原始彩色图 1920×1080，深度和对齐彩色图 640×480，畸变模型为 `brown_conrady`；深度图为 `16UC1`，量程约 **2.4983 m**。这些数值不能直接套用到现在的 C1W；当前 C1W 实机标定样本的对齐图为 640×480，深度内参畸变模型为 `kannala_brandt4`。相机节点从实时 `/camera/info/depth` 和 `/camera/depth_range` 读取当前设备参数。`camera_target` 按 Vidu SDK 的 Kannala-Brandt 四系数公式反投影 C1W 像素，也兼容先前的 Brown-Conrady 模型；它每秒报告颜色区域可见表面的代表点，并发布 `/piperx/target_camera`。这仍属于颜色区域定位，尚不能区分同色的不同物体类别；光照变化时需调整 HSV 阈值。先前 C1N 的红色区域检测记录不代表当前 C1W 的新测试结果。当前 C1W 已有实机手眼外参，但目标在基座坐标系下的准确度和实机抓取仍需现场验证。
+
+实机与 Gazebo 三维定位的统一话题、仿真运行命令、已知物体几何检查和现场待做的测量记录，见 [三维定位与实机验收](docs/THREED_VISION_ACCEPTANCE.md)。Gazebo 演示一条命令启动：
+
+```bash
+bash scripts/start_gazebo_vision.sh
+```
 
 ### 后续使用相机 IMU
 
@@ -101,7 +107,7 @@ ros2 run robot_state_publisher robot_state_publisher /tmp/piper_handeye_gazebo.u
 ```
 
 ```bash
-python3 sim/gazebo/camera_bridge.py
+python3 sim/gazebo/camera_bridge.py --color-only
 ```
 
 服务启动后，执行一次 `ros2 run gazebo_ros spawn_entity.py -entity piper -file /tmp/piper_handeye_gazebo.urdf`；可另开 `gzclient` 看三维场景。然后运行：
@@ -169,7 +175,7 @@ ros2 run piperx_lab board_check --once --save-image records   # 同时存一张�
 
 **板放对了不一定标定能解出来**：如果手臂只在很小的范围内动，或只绕相机光轴转，平移量在数学上不可观测。请让相机从多个不同角度和距离看板，姿态散度超过 15°（求解器会检查并拒绝不够分散的样本）。
 
-2026-10-13 已从 **12 组 Piper + OKULO-C1W-H106/940 实机样本**求得 `calibration/handeye_result.json`。外参为 `link6 → camera_depth_frame`，平移约 **(-102.96, -18.62, +32.96) mm**；平均标定板重投影 RMS **1.59 px**，固定板最大位置散差 **5.82 mm**、角度散差 **1.30°**，项目质量检查 `quality_pass=true`。逐一剔除一个样本重新求解，外参相对全量解的最大变化为 **2.69 mm / 0.63°**。这些是样本内部一致性指标，并非独立测得的抓取精度。`target_base` 只接受 `robot=piper`、`mode=real` 且质量检查通过的结果，不能误用旧 Piper X 仿真结果；首次用于实机前仍需用已知点核对坐标方向和误差。此前按 `link5` 安装假设写下的说明已作废，不应与 `link6` 样本混用。
+2026-10-13 已从 **12 组 Piper + OKULO-C1W-H106/940 实机样本**求得 `calibration/handeye_result.json`。外参为 `link6 → camera_depth_frame`，平移约 **(-102.96, -18.62, +32.96) mm**；平均标定板重投影 RMS **1.59 px**，固定板最大位置散差 **5.82 mm**、角度散差 **1.30°**，项目质量检查 `quality_pass=true`。逐一剔除一个样本重新求解，外参相对全量解的最大变化为 **2.69 mm / 0.63°**。这些是样本内部一致性指标，并非独立测得的抓取精度。`target_base --source real` 只接受 `robot=piper`、`mode=real` 且质量检查通过的结果，不能误用旧 Piper X 仿真结果；首次用于实机前仍需用已知点核对坐标方向和误差。此前按 `link5` 安装假设写下的说明已作废，不应与 `link6` 样本混用。
 
 实机启动入口是 `scripts/start_real.sh`，必须显式指定 CAN 接口；末端类型默认使用已确认的 `agx_gripper`：
 

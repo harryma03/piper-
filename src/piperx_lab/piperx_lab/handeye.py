@@ -95,6 +95,29 @@ def undistort_pixels(points, kind: str, k: np.ndarray, d) -> np.ndarray:
     return np.asarray(out, np.float64).reshape(-1, 2)
 
 
+def deproject_pixel(pixel, depth_m: float, camera_info) -> np.ndarray:
+    """Return optical-frame XYZ using the depth image's own CameraInfo.
+
+    Vidu SDK's deproject example defines depth as optical Z and uses the first
+    four Kannala-Brandt coefficients in the same theta polynomial as OpenCV's
+    fisheye model.  The wrapper publishes that SDK model name unchanged.
+    """
+    kind, k, d = camera_model(camera_info)
+    uv = np.asarray(pixel, np.float64)
+    if uv.shape != (2,) or not np.all(np.isfinite(uv)):
+        raise ValueError('Expected a finite pixel (u, v)')
+    if not math.isfinite(depth_m) or depth_m <= 0:
+        raise ValueError('Depth must be positive metres along optical Z')
+    raw = uv.reshape(1, 1, 2)
+    if kind == 'fisheye':
+        ray = cv2.fisheye.undistortPoints(raw, k, d)[0, 0]
+    else:
+        ray = cv2.undistortPoints(raw, k, d)[0, 0]
+    if not np.all(np.isfinite(ray)):
+        raise ValueError('Pixel could not be deprojected with CameraInfo')
+    return np.array([ray[0] * depth_m, ray[1] * depth_m, depth_m], np.float64)
+
+
 def project_points(points, rvec, tvec, kind: str, k: np.ndarray, d) -> np.ndarray:
     """Project 3D points with the camera model that produced ``K``/``D``."""
     raw = np.asarray(points, np.float64).reshape(-1, 1, 3)

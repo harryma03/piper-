@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "measurement": "visible_surface_representative_point",
+  "measurement_note": "Visible surface representative point; not object centre or grasp pose. Keep arm, camera and target stationary for repeatability checks.",
+  "source": "sim",
+  "label": null,
+  "frame": "base",
+  "frame_id": "base_link",
+  "topic": "/piperx/target_base",
+  "use_sim_time": true,
+  "started_utc": "2026-10-16T08:09:21.749726+00:00",
+  "finished_utc": "2026-10-16T08:09:28.116861+00:00",
+  "duration_wall_s": 6.367142739999963,
+  "requested_samples": 5,
+  "accepted_samples": 5,
+  "complete": true,
+  "stop_reason": "complete",
+  "max_timestamp_offset_s": 0.5,
+  "rejected_messages": {},
+  "expected_xyz_m": null,
+  "statistics": {
+    "mean_xyz_m": [
+      0.310815871637772,
+      -0.001979323655383898,
+      0.09017229432157203
+    ],
+    "std_xyz_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "std_definition": "population, ddof=0",
+    "max_distance_from_mean_m": 0.0
+  },
+  "samples": [
+    {
+      "stamp": {
+        "sec": 51,
+        "nanosec": 280000000
+      },
+      "received_clock_ns": 51500000000,
+      "timestamp_offset_s": 0.22,
+      "xyz_m": [
+        0.310815871637772,
+        -0.001979323655383898,
+        0.09017229432157203
+      ]
+    },
+    {
+      "stamp": {
+        "sec": 52,
+        "nanosec": 546000000
+      },
+      "received_clock_ns": 52600000000,
+      "timestamp_offset_s": 0.054000000000000006,
+      "xyz_m": [
+        0.310815871637772,
+        -0.001979323655383898,
+        0.09017229432157203
+      ]
+    },
+    {
+      "stamp": {
+        "sec": 53,
+        "nanosec": 546000000
+      },
+      "received_clock_ns": 53600000000,
+      "timestamp_offset_s": 0.054000000000000006,
+      "xyz_m": [
+        0.310815871637772,
+        -0.001979323655383898,
+        0.09017229432157203
+      ]
+    },
+    {
+      "stamp": {
+        "sec": 54,
+        "nanosec": 614000000
+      },
+      "received_clock_ns": 54900000000,
+      "timestamp_offset_s": 0.28600000000000003,
+      "xyz_m": [
+        0.310815871637772,
+        -0.001979323655383898,
+        0.09017229432157203
+      ]
+    },
+    {
+      "stamp": {
+        "sec": 56,
+        "nanosec": 946000000
+      },
+      "received_clock_ns": 57000000000,
+      "timestamp_offset_s": 0.054000000000000006,
+      "xyz_m": [
+        0.310815871637772,
+        -0.001979323655383898,
+        0.09017229432157203
+      ]
+    }
+  ]
+}
