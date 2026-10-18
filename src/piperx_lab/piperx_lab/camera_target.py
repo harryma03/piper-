@@ -55,15 +55,8 @@ def decode_depth(msg: Image) -> np.ndarray:
     return data.reshape(msg.height, msg.step // 2)[:, :msg.width]
 
 
-def detect_colored_point(color: np.ndarray, depth: np.ndarray, info: CameraInfo,
-                         range_m: float, target_color: str = 'red', min_area: int = 80):
-    """Return camera-frame XYZ in metres plus image measurements, or None."""
-    if color.shape[:2] != depth.shape or depth.shape != (info.height, info.width):
-        raise ValueError('Aligned color, depth, and depth CameraInfo dimensions disagree')
-    if not math.isfinite(range_m) or range_m <= 0:
-        raise ValueError('Invalid depth range')
-
-    # The Vidu wrapper passes OpenCV BGR bytes through ROS with encoding 8UC3.
+def largest_color_mask(color: np.ndarray, target_color: str, min_area: int = 80):
+    """Mask of the largest requested color component, or ``None``."""
     hsv = cv2.cvtColor(color, cv2.COLOR_BGR2HSV)
     mask_color = np.zeros(hsv.shape[:2], dtype=np.uint8)
     for lower, upper in HSV_RANGES[target_color]:
@@ -73,7 +66,22 @@ def detect_colored_point(color: np.ndarray, depth: np.ndarray, info: CameraInfo,
     if not candidates:
         return None
     label = max(candidates, key=lambda i: stats[i, cv2.CC_STAT_AREA])
-    mask = labels == label
+    return labels == label
+
+
+def detect_colored_point(color: np.ndarray, depth: np.ndarray, info: CameraInfo,
+                         range_m: float, target_color: str = 'red', min_area: int = 80):
+    """Return camera-frame XYZ in metres plus image measurements, or None."""
+    if color.shape[:2] != depth.shape or depth.shape != (info.height, info.width):
+        raise ValueError('Aligned color, depth, and depth CameraInfo dimensions disagree')
+    if not math.isfinite(range_m) or range_m <= 0:
+        raise ValueError('Invalid depth range')
+
+    # The Vidu wrapper passes OpenCV BGR bytes through ROS with encoding 8UC3.
+    mask = largest_color_mask(color, target_color, min_area)
+    if mask is None:
+        return None
+    area = int(mask.sum())
     # Avoid mixed foreground/background depth at the color-region boundary.
     inner = cv2.erode(mask.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
     if int(inner.sum()) >= max(20, min_area // 4):
@@ -96,7 +104,7 @@ def detect_colored_point(color: np.ndarray, depth: np.ndarray, info: CameraInfo,
     return {
         'pixel': [u, v],
         'xyz_m': [x, y, z],
-        'color_area_px': int(stats[label, cv2.CC_STAT_AREA]),
+        'color_area_px': area,
         'valid_depth_px': int(valid.sum()),
         'depth_raw_median': depth_raw,
         'depth_sample_px': int(patch.size),

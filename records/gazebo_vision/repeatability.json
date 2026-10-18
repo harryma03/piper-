@@ -3,14 +3,14 @@
   "measurement": "visible_surface_representative_point",
   "measurement_note": "Visible surface representative point; not object centre or grasp pose. Keep arm, camera and target stationary for repeatability checks.",
   "source": "sim",
-  "label": null,
+  "label": "cube_40mm_center",
   "frame": "base",
   "frame_id": "base_link",
   "topic": "/piperx/target_base",
   "use_sim_time": true,
-  "started_utc": "2026-10-16T08:09:21.749726+00:00",
-  "finished_utc": "2026-10-16T08:09:28.116861+00:00",
-  "duration_wall_s": 6.367142739999963,
+  "started_utc": "2026-10-18T05:50:57.188484+00:00",
+  "finished_utc": "2026-10-18T05:51:01.139591+00:00",
+  "duration_wall_s": 3.951114082999993,
   "requested_samples": 5,
   "accepted_samples": 5,
   "complete": true,
@@ -20,9 +20,9 @@
   "expected_xyz_m": null,
   "statistics": {
     "mean_xyz_m": [
-      0.310815871637772,
-      -0.001979323655383898,
-      0.09017229432157203
+      0.3041756606228365,
+      -0.0020746098615516484,
+      0.040340905979801056
     ],
     "std_xyz_m": [
       0.0,
@@ -35,67 +35,67 @@
   "samples": [
     {
       "stamp": {
-        "sec": 51,
-        "nanosec": 280000000
+        "sec": 10,
+        "nanosec": 957000000
       },
-      "received_clock_ns": 51500000000,
-      "timestamp_offset_s": 0.22,
+      "received_clock_ns": 11100000000,
+      "timestamp_offset_s": 0.14300000000000002,
       "xyz_m": [
-        0.310815871637772,
-        -0.001979323655383898,
-        0.09017229432157203
+        0.3041756606228365,
+        -0.0020746098615516484,
+        0.040340905979801056
       ]
     },
     {
       "stamp": {
-        "sec": 52,
-        "nanosec": 546000000
+        "sec": 11,
+        "nanosec": 558000000
       },
-      "received_clock_ns": 52600000000,
-      "timestamp_offset_s": 0.054000000000000006,
+      "received_clock_ns": 11600000000,
+      "timestamp_offset_s": 0.042,
       "xyz_m": [
-        0.310815871637772,
-        -0.001979323655383898,
-        0.09017229432157203
+        0.3041756606228365,
+        -0.0020746098615516484,
+        0.040340905979801056
       ]
     },
     {
       "stamp": {
-        "sec": 53,
-        "nanosec": 546000000
+        "sec": 12,
+        "nanosec": 223000000
       },
-      "received_clock_ns": 53600000000,
-      "timestamp_offset_s": 0.054000000000000006,
+      "received_clock_ns": 12300000000,
+      "timestamp_offset_s": 0.077,
       "xyz_m": [
-        0.310815871637772,
-        -0.001979323655383898,
-        0.09017229432157203
+        0.3041756606228365,
+        -0.0020746098615516484,
+        0.040340905979801056
       ]
     },
     {
       "stamp": {
-        "sec": 54,
-        "nanosec": 614000000
+        "sec": 13,
+        "nanosec": 223000000
       },
-      "received_clock_ns": 54900000000,
-      "timestamp_offset_s": 0.28600000000000003,
+      "received_clock_ns": 13300000000,
+      "timestamp_offset_s": 0.077,
       "xyz_m": [
-        0.310815871637772,
-        -0.001979323655383898,
-        0.09017229432157203
+        0.3041756606228365,
+        -0.0020746098615516484,
+        0.040340905979801056
       ]
     },
     {
       "stamp": {
-        "sec": 56,
-        "nanosec": 946000000
+        "sec": 14,
+        "nanosec": 357000000
       },
-      "received_clock_ns": 57000000000,
-      "timestamp_offset_s": 0.054000000000000006,
+      "received_clock_ns": 14400000000,
+      "timestamp_offset_s": 0.043000000000000003,
       "xyz_m": [
-        0.310815871637772,
-        -0.001979323655383898,
-        0.09017229432157203
+        0.3041756606228365,
+        -0.0020746098615516484,
+        0.040340905979801056
       ]
     }
   ]

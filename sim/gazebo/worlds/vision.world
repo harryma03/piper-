@@ -24,10 +24,10 @@
     </model>
     <model name="red_target">
       <static>true</static>
-      <pose>0.30 0 0.045 0 0 0</pose>
+      <pose>0.30 0 0.020 0 0 0</pose>
       <link name="box">
-        <collision name="collision"><geometry><box><size>0.09 0.09 0.09</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>0.09 0.09 0.09</size></box></geometry>
+        <collision name="collision"><geometry><box><size>0.04 0.04 0.04</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.04 0.04 0.04</size></box></geometry>
           <material><ambient>0.95 0.02 0.02 1</ambient><diffuse>0.95 0.02 0.02 1</diffuse></material>
         </visual>
       </link>

@@ -38,7 +38,7 @@ flowchart TD
 | --- | --- | --- |
 | 机械臂 | 官方模型、CAN 驱动、MoveIt、关节反馈和 TF；joint_move / gripper_move | 建立统一执行接口，验证取消、保持、异常恢复和夹爪反馈 |
 | 相机 | Vidu ROS wrapper；彩色、深度、内参；Gazebo RGB-D 桥 | 统一观测契约、设备身份检查和回放格式 |
-| 视觉 | camera_target 用 HSV 定位最大颜色区域；支持当前 C1W 鱼眼内参 | 扩展多目标、类别检测、分割与跟踪；现场验收 C1W 绝对定位误差 |
+| 视觉 | camera_target 用 HSV 定位最大颜色区域；cube_pose 估计已知 40 mm 直立方块的顶面和中心；支持当前 C1W 鱼眼内参 | 扩展多目标、类别检测、分割与跟踪；现场验收 C1W 绝对定位误差和受限方块位姿 |
 | 标定 | 12 组实机样本；link6 → camera_depth_frame 外参 | 用独立已知点验证基座坐标误差；维护 TCP 与工具外参 |
 | 坐标转换 | target_base 将相机点转换到 base_link | 提供统一、带时间与质量标记的三维目标 |
 | 抓取 | grasp_plan 生成预抓取、抓取、撤离路点 | 增加 IK、碰撞规划、动作执行、夹爪时序和成功判断 |

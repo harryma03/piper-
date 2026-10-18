@@ -74,7 +74,7 @@ ros2 run piperx_lab camera_target --color red --once --save-frame records/red_ta
 
 先前连接 C1N 相机时实测：原始彩色图 1920×1080，深度和对齐彩色图 640×480，畸变模型为 `brown_conrady`；深度图为 `16UC1`，量程约 **2.4983 m**。这些数值不能直接套用到现在的 C1W；当前 C1W 实机标定样本的对齐图为 640×480，深度内参畸变模型为 `kannala_brandt4`。相机节点从实时 `/camera/info/depth` 和 `/camera/depth_range` 读取当前设备参数。`camera_target` 按 Vidu SDK 的 Kannala-Brandt 四系数公式反投影 C1W 像素，也兼容先前的 Brown-Conrady 模型；它每秒报告颜色区域可见表面的代表点，并发布 `/piperx/target_camera`。这仍属于颜色区域定位，尚不能区分同色的不同物体类别；光照变化时需调整 HSV 阈值。先前 C1N 的红色区域检测记录不代表当前 C1W 的新测试结果。当前 C1W 已有实机手眼外参，但目标在基座坐标系下的准确度和实机抓取仍需现场验证。
 
-实机与 Gazebo 三维定位的统一话题、仿真运行命令、已知物体几何检查和现场待做的测量记录，见 [三维定位与实机验收](docs/THREED_VISION_ACCEPTANCE.md)。Gazebo 演示一条命令启动：
+实机与 Gazebo 三维定位的统一话题、40 mm 已知直立方块的顶面与中心估计、仿真运行命令和现场测量记录，见 [三维定位与实机验收](docs/THREED_VISION_ACCEPTANCE.md)。方块绕竖直轴的方向只确定到 90° 等价类；当前尚未自动抓取。Gazebo 演示一条命令启动：
 
 ```bash
 bash scripts/start_gazebo_vision.sh

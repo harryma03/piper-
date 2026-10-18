@@ -1,6 +1,6 @@
 # Piper / C1W 实机与 Gazebo 三维定位
 
-更新：2026-10-16。本文覆盖颜色目标的相机坐标与基座坐标输出。当前输出为**可见表面的代表点**，后续抓取还需要目标形状、抓取姿态、TCP、规划及执行反馈。
+更新：2026-10-18。本文覆盖颜色目标的相机坐标、基座坐标，以及已知 40 mm 直立红方块的中心位姿。颜色目标点是**可见表面的代表点**；方块位姿依赖已知尺寸和可见顶面，后续抓取仍需要 TCP、规划及执行反馈。
 
 ## 需要现场完成的事
 
@@ -45,7 +45,7 @@ Vidu 2.1 SDK 的 `example/deproject/main.cpp` 明确使用前四个 Kannala-Bran
 bash scripts/start_gazebo_vision.sh
 ```
 
-默认独立使用 `ROS_DOMAIN_ID=181`、`GAZEBO_MASTER_URI=http://127.0.0.1:11369`。脚本生成官方 Piper + 原厂夹爪模型，添加不可见的 link6 随动 RGB-D 传感器，启动只有地面和红色方块的 `vision.world`，将仿真机械臂放到观察姿态，然后持续输出相机和基座 XYZ。Ctrl+C 结束并清理进程。启动前检测端口及 ROS 域冲突；需要多个实例时为每个实例指定不同的域与端口。
+默认独立使用 `ROS_DOMAIN_ID=181`、`GAZEBO_MASTER_URI=http://127.0.0.1:11369`。脚本生成官方 Piper + 原厂夹爪模型，添加不可见的 link6 随动 RGB-D 传感器，启动只有地面和 **40 mm 红方块**的 `vision.world`，将仿真机械臂放到观察姿态，然后持续输出表面点、方块中心和顶面中心。Ctrl+C 结束并清理进程。启动前检测端口及 ROS 域冲突；需要多个实例时为每个实例指定不同的域与端口。
 
 另一个终端打开三维窗口：
 
@@ -76,9 +76,29 @@ ros2 run piperx_lab target_check --frame base --source sim --samples 20 \
 python3 sim/gazebo/verify_vision.py
 ```
 
-验证器依次改变红色方块位置、机械臂关节配置及第六轴角度，读取实际发布的基座点，再与 Gazebo 独立模型位姿中的 90 mm 方块表面比较。每种情况默认采集 5 点；阈值为表面距离不超过 5 mm，仅用于当前理想仿真的回归检查。原始点、仿真真值、误差和通过状态保存在 `records/gazebo_vision/verification.json`。验证器会移动仿真模型。Gazebo 的关节配置插件直接设置关节位置，这项测试验证不同静止姿态下的视觉坐标，不验证动力学轨迹控制或接触抓取。
+验证器依次改变红色方块位置、机械臂关节配置、第六轴角度及方块自身偏航角，读取实际发布的基座表面点与方块位姿，分别与 Gazebo 独立模型中的 40 mm 方块表面、中心及 90° 等价偏航角比较。每种情况默认各采集 5 点；表面距离和中心误差的仿真回归阈值均为 5 mm，偏航角阈值为 10°。原始点、仿真真值、误差和通过状态保存在 `records/gazebo_vision/verification.json`。验证器会移动仿真模型。Gazebo 的关节配置插件直接设置关节位置，这项测试验证不同静止姿态下的视觉坐标，不验证动力学轨迹控制或接触抓取。
 
 该数值衡量点是否落在正确物体表面，不能当作物体中心误差或真实 C1W 精度。Gazebo 深度传感器不模拟 ToF 多径、反光、量程噪声或真实镜头畸变；鱼眼路径由 SDK 公式与离线已知点测试覆盖。
+
+## 已知直立方块的视觉位姿
+
+`cube_pose` 与 `camera_target` 共用对齐的 RGB-D 输入和红色区域分割。它将区域内有效像素按当前相机模型反投影成点云，并在观测时刻换到 `base_link`；只在顶面点足够、顶面尺寸与已知边长相符时，估计顶面中心和方块中心。模型假设方块已知边长、直立，且 `base_link` 的 +Z 与桌面法向一致。输出 `/piperx/cube_pose_base`（`PoseStamped`）和 `/piperx/cube_top_base`（`PointStamped`），单位为米。方块正方形顶面的偏航角只能确定到 **90° 等价类**；输出四元数是其中一个代表，不是有标记角点的完整六维物体朝向。该节点只读，不发布机械臂动作。
+
+脚本已自动启动仿真模式；单独运行一次可用：
+
+```bash
+ros2 run piperx_lab cube_pose --source sim --size 0.04 --table-height 0 --once \
+  --ros-args -p use_sim_time:=true
+```
+
+实机测试已知 40 mm 直立红方块时，在相机和机械臂反馈节点运行后执行：
+
+```bash
+ros2 run piperx_lab cube_pose --source real --size 0.04 --once \
+  --save-frame records/c1w_acceptance/cube_pose_40mm.png
+```
+
+请另外量好方块实际边长和工作台的基座系高度；若提供 `--table-height`，节点会拒绝底部高度明显不符的结果。遮挡顶面、相机看不到足够顶面、同色多个物体或物体倾斜时，这个受限模型可能不给出位姿；不能将它当作通用六维姿态识别。当前实机位姿准确度仍待独立测量。
 
 ## 实机运行与验收
 

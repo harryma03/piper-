@@ -69,6 +69,8 @@ python3 -m piperx_lab.target_base --source sim --ros-args -p use_sim_time:=true 
 PIDS+=("$!")
 python3 -m piperx_lab.camera_target --source sim --color red --ros-args -p use_sim_time:=true &
 PIDS+=("$!")
+python3 -m piperx_lab.cube_pose --source sim --size 0.04 --table-height 0 --ros-args -p use_sim_time:=true &
+PIDS+=("$!")
 echo "Gazebo 3D vision running: ROS_DOMAIN_ID=$ROS_DOMAIN_ID GAZEBO_MASTER_URI=$GAZEBO_MASTER_URI"
 echo 'Press Ctrl+C to stop the demo.'
 wait -n "${PIDS[@]}"

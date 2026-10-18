@@ -25,6 +25,7 @@ setup(
             'handeye_solve = piperx_lab.handeye_solve:main',
             'target_base = piperx_lab.target_base:main',
             'target_check = piperx_lab.target_check:main',
+            'cube_pose = piperx_lab.cube_pose:main',
             'board_check = piperx_lab.board_check:main',
         ],
     },
