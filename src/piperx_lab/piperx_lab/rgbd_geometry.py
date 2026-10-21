@@ -39,3 +39,20 @@ def color_region_points(color, depth, info, range_m, target_color='red', min_are
     if not np.all(np.isfinite(points)):
         raise ValueError('Colour point cloud contains invalid coordinates')
     return points, valid
+
+
+def depth_points_camera(depth, info, range_m, stride=5):
+    """Sparse metric depth cloud for local support-surface estimation."""
+    if depth.shape != (info.height, info.width) or not math.isfinite(range_m) or range_m <= 0:
+        raise ValueError('Invalid depth dimensions or range')
+    ys, xs = np.mgrid[0:depth.shape[0]:stride, 0:depth.shape[1]:stride]
+    valid = depth[ys, xs] > 0
+    xs, ys = xs[valid], ys[valid]
+    pixels = np.column_stack((xs, ys)).astype(np.float64).reshape(-1, 1, 2)
+    if len(pixels) == 0:
+        raise ValueError('No valid sparse depth points')
+    kind, k, d = camera_model(info)
+    rays = (cv2.fisheye.undistortPoints(pixels, k, d) if kind == 'fisheye'
+            else cv2.undistortPoints(pixels, k, d)).reshape(-1, 2)
+    z = depth[ys, xs].astype(np.float64) * range_m / 65535.0
+    return np.column_stack((rays * z[:, None], z))

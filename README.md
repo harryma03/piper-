@@ -223,3 +223,5 @@ PYTHONPATH=src/piperx_lab python3 -m pytest src/piperx_lab/test -q
 项目自有代码放在本目录，依赖官方仓库中的 Piper 模型和驱动；仿真与真机采用相同的机械臂型号参数，但分别验证控制接口、末端执行器和相机标定。
 
 后续视觉识别、仿真实机统一接口、抓取闭环与 VLA 接入的模块规划、数据契约和分阶段验收见 [视觉与 VLA 框架规划](docs/VISION_SIM_REAL_VLA_PLAN.md)。
+
+圆柱体的实时测量、基座坐标换算和仅规划抓取预览见 [圆柱视觉与规划说明](docs/CYLINDER_VISION.md)。入口为 `bash scripts/start_cylinder_preview.sh`；需先启动相机、实机反馈和 MoveIt，不会发送执行命令。

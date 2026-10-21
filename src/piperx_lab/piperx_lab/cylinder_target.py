@@ -13,15 +13,21 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import PointStamped, Vector3Stamped
 from rclpy.node import Node
+from rclpy.time import Time
+from rclpy.duration import Duration
+from rclpy.executors import ExternalShutdownException
 from rclpy.utilities import remove_ros_args
 from sensor_msgs.msg import CameraInfo, Image
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, String
+from tf2_ros import Buffer, TransformListener, TransformException
 
 from piperx_lab.camera_target import decode_color, decode_depth
 from piperx_lab.cylinder_geometry import fit_cylinder
-from piperx_lab.handeye import camera_model, project_points
-from piperx_lab.rgbd_geometry import aligned_frames_valid, color_region_points
-from piperx_lab.transforms import TARGET_FRAME
+from piperx_lab.handeye import camera_model, project_points, transform_from_ros
+from piperx_lab.rgbd_geometry import aligned_frames_valid, color_region_points, depth_points_camera
+from piperx_lab.cylinder_grasp import support_patch
+from piperx_lab.transforms import TARGET_FRAME, load_handeye, transform_points
+from piperx_lab.workspace import workspace_root
 
 
 def annotate(color, mask, info, result):
@@ -50,17 +56,23 @@ def annotate(color, mask, info, result):
 
 
 class CylinderTarget(Node):
-    def __init__(self, samples, save_frame):
+    def __init__(self, samples, save_frame, handeye=None):
         super().__init__('piperx_cylinder_target')
         self.samples_required, self.save_frame = samples, save_frame
         self.samples = []
         self.range_m = None
         self.frames = OrderedDict()
         self.last_attempt = 0.0
+        self.handeye = handeye
+        self.tf_buffer = Buffer(cache_time=Duration(seconds=10)) if handeye else None
+        self.tf_listener = TransformListener(self.tf_buffer, self) if handeye else None
         self.reference_pub = self.create_publisher(
             PointStamped, '/piperx/cylinder_axis_reference_camera', 10)
         self.axis_pub = self.create_publisher(
             Vector3Stamped, '/piperx/cylinder_axis_camera', 10)
+        self.observation_pub = self.create_publisher(String, '/piperx/cylinder_observation', 10)
+        self.base_reference_pub = self.create_publisher(PointStamped, '/piperx/cylinder_axis_reference_base', 10)
+        self.base_axis_pub = self.create_publisher(Vector3Stamped, '/piperx/cylinder_axis_base', 10)
         for kind, message_type, topic in (
                 ('color', Image, '/camera/color/aligned'),
                 ('depth', Image, '/camera/depth'),
@@ -100,6 +112,38 @@ class CylinderTarget(Node):
             self.get_logger().warn(f'No observable cylinder: {exc}')
             return
         result.update(frame_id=TARGET_FRAME, stamp={'sec': key[0], 'nanosec': key[1]})
+        if self.handeye:
+            try:
+                exact = True
+                try:
+                    tf = self.tf_buffer.lookup_transform('base_link', 'link6',
+                                                         Time.from_msg(bundle['depth'].header.stamp))
+                except TransformException:
+                    exact = False
+                    tf = self.tf_buffer.lookup_transform('base_link', 'link6', Time())
+                lag = abs(key[0] + key[1] * 1e-9 -
+                          (tf.header.stamp.sec + tf.header.stamp.nanosec * 1e-9))
+                if lag > 0.2:
+                    raise ValueError(f'TF/camera timestamp gap is {lag:.3f} s')
+                matrix = transform_from_ros(tf) @ self.handeye['T_wrist_camera']
+                result['base'] = {
+                    'frame_id': 'base_link',
+                    'diameter_m': result['diameter_m'],
+                    'observed_red_span_m': result['observed_red_span_m'],
+                    'axis_reference_xyz_m': transform_points(matrix, result['axis_reference_xyz_m']).tolist(),
+                    'axis_direction': (matrix[:3, :3] @ result['axis_direction']).tolist(),
+                    'T_base_camera': matrix.tolist(),
+                    'tf_from_latest': not exact, 'tf_lag_s': lag}
+                try:
+                    sparse = depth_points_camera(depth, bundle['info'], self.range_m)
+                    result['base']['support_patch'] = support_patch(
+                        transform_points(matrix, sparse), result['base']['axis_reference_xyz_m'])
+                except ValueError as exc:
+                    result['base']['support_patch'] = None
+                    result['base']['support_patch_error'] = str(exc)
+            except (TransformException, ValueError) as exc:
+                self.get_logger().warn(f'No synchronized base-frame cylinder: {exc}')
+                return
         point = PointStamped()
         point.header = bundle['depth'].header
         point.point.x, point.point.y, point.point.z = result['axis_reference_xyz_m']
@@ -108,6 +152,18 @@ class CylinderTarget(Node):
         direction.vector.x, direction.vector.y, direction.vector.z = result['axis_direction']
         self.reference_pub.publish(point)
         self.axis_pub.publish(direction)
+        if 'base' in result:
+            base_point, base_axis = PointStamped(), Vector3Stamped()
+            base_point.header.stamp = point.header.stamp
+            base_point.header.frame_id = 'base_link'
+            base_point.point.x, base_point.point.y, base_point.point.z = result['base']['axis_reference_xyz_m']
+            base_axis.header = base_point.header
+            base_axis.vector.x, base_axis.vector.y, base_axis.vector.z = result['base']['axis_direction']
+            self.base_reference_pub.publish(base_point)
+            self.base_axis_pub.publish(base_axis)
+        observation = String()
+        observation.data = json.dumps(result)
+        self.observation_pub.publish(observation)
         self.samples.append(result)
         if self.save_frame is not None:
             self.save_frame.parent.mkdir(parents=True, exist_ok=True)
@@ -122,17 +178,28 @@ def main(argv=None):
     parser.add_argument('--timeout', type=float, default=25)
     parser.add_argument('--out', type=Path, default=Path('records/cylinder_real/observation.json'))
     parser.add_argument('--save-frame', type=Path)
+    parser.add_argument('--base', action='store_true',
+                        help='Also transform the cylinder axis into base_link using real hand-eye and TF')
+    parser.add_argument('--handeye', type=Path)
     args = parser.parse_args(remove_ros_args(args=sys.argv)[1:] if argv is None else argv)
     if args.samples < 1 or not math.isfinite(args.timeout) or args.timeout <= 0:
         parser.error('--samples and --timeout must be positive')
+    handeye = None
+    if args.base:
+        try:
+            handeye = load_handeye(args.handeye or workspace_root() / 'calibration/handeye_result.json')
+        except (OSError, ValueError) as exc:
+            parser.error(str(exc))
+        if not handeye['quality_pass']:
+            parser.error('Real hand-eye calibration did not pass its quality check')
     rclpy.init()
-    node = CylinderTarget(args.samples, args.save_frame)
+    node = CylinderTarget(args.samples, args.save_frame, handeye)
     end = time.monotonic() + args.timeout
     interrupted = False
     try:
         while rclpy.ok() and len(node.samples) < args.samples and time.monotonic() < end:
             rclpy.spin_once(node, timeout_sec=0.2)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         interrupted = True
     finally:
         result = {'complete': len(node.samples) >= args.samples,

@@ -1,0 +1,54 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Value: true
+    - Class: rviz_default_plugins/RobotModel
+      Name: Real Piper feedback
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Cylinder candidates PREVIEW ONLY
+      Topic:
+        Value: /piperx/cylinder_preview_markers
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+      Value: true
+    - Class: moveit_rviz_plugin/Trajectory
+      Name: Cylinder trajectory PREVIEW ONLY
+      Robot Description: robot_description
+      Trajectory Topic: /piperx/cylinder_preview_trajectory
+      Loop Animation: true
+      State Display Time: 0.05 s
+      Robot Alpha: 0.5
+      Show Robot Visual: true
+      Value: true
+  Global Options:
+    Fixed Frame: base_link
+    Background Color: 35; 35; 35
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 1.5
+      Focal Point:
+        X: 0.30
+        Y: 0.0
+        Z: 0.25
+      Pitch: 0.5
+      Yaw: -0.7
+      Target Frame: base_link
+Window Geometry:
+  Width: 1800
+  Height: 850
