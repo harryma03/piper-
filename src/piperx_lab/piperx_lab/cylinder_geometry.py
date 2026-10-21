@@ -11,7 +11,12 @@ import numpy as np
 from scipy.optimize import least_squares
 
 
-def fit_cylinder(points):
+def fit_cylinder(points, known_diameter_m=None):
+    known_radius = None
+    if known_diameter_m is not None:
+        if not math.isfinite(known_diameter_m) or not 0.002 < known_diameter_m < 0.3:
+            raise ValueError('Invalid known cylinder diameter')
+        known_radius = known_diameter_m / 2
     cloud = np.asarray(points, np.float64)
     if cloud.ndim != 2 or cloud.shape[1] != 3 or len(cloud) < 80:
         raise ValueError('Need at least 80 valid red surface points')
@@ -42,10 +47,14 @@ def fit_cylinder(points):
         initial = np.r_[np.zeros(3), math.atan2(axis[1], axis[0]),
                         math.asin(float(np.clip(axis[2], -0.999999, 0.999999))),
                         min(extent / 3, radius_max / 2)]
+        if known_radius is not None:
+            initial[5] = known_radius
+        radius_low = .001 if known_radius is None else known_radius - 1e-9
+        radius_high = radius_max if known_radius is None else known_radius + 1e-9
         fit = least_squares(
             residual, initial,
-            bounds=(np.r_[np.full(3, -radius_max * 2), -np.inf, -math.pi / 2, 0.001],
-                    np.r_[np.full(3, radius_max * 2), np.inf, math.pi / 2, radius_max]),
+            bounds=(np.r_[np.full(3, -radius_max * 2), -np.inf, -math.pi / 2, radius_low],
+                    np.r_[np.full(3, radius_max * 2), np.inf, math.pi / 2, radius_high]),
             loss='soft_l1', f_scale=0.002, max_nfev=250)
         errors = residual(fit.x)[:-1]
         solutions.append((float(np.median(np.abs(errors))), fit.x, errors))
@@ -79,6 +88,7 @@ def fit_cylinder(points):
     reference = origin + parameters[:3] + axis * float((lower + upper) / 2)
     return {
         'model': 'circular_cylinder_hypothesis',
+        'diameter_source': 'measured_prior' if known_radius is not None else 'surface_fit',
         'axis_reference_xyz_m': reference.tolist(),
         'axis_direction': axis.tolist(),
         'diameter_m': radius * 2,

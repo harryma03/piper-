@@ -39,3 +39,15 @@ def test_vidu_aligned_alias_is_accepted_but_raw_color_is_not():
     assert aligned_frames_valid(bundle)
     bundle['color'] = msg('camera_color_frame')
     assert not aligned_frames_valid(bundle)
+
+
+def test_measured_radius_is_explicit_prior_not_free_size_estimate():
+    t, angle = np.meshgrid(np.linspace(-.025,.025,18), np.linspace(-1.1,1.1,25))
+    points = np.column_stack((.023*np.cos(angle).ravel(), .023*np.sin(angle).ravel(), t.ravel()+.5))
+    result = fit_cylinder(points, known_diameter_m=.046)
+    assert result['diameter_source'] == 'measured_prior'
+    assert abs(result['diameter_m']-.046) < 1e-7
+    assert abs(result['axis_direction'][2]) > .999
+    for invalid in [float('nan'), -.046, 0.]:
+        with pytest.raises(ValueError, match='known cylinder diameter'):
+            fit_cylinder(points, known_diameter_m=invalid)
