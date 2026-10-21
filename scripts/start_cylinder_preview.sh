@@ -22,4 +22,4 @@ ros2 launch agx_arm_moveit moveit_rviz.launch.py arm_type:=piper \
   effector_type:=agx_gripper follow:=true \
   "rviz_config:=$WORKSPACE/config/cylinder_preview.rviz" > /tmp/piper-cylinder-preview-rviz.log 2>&1 &
 PIDS+=("$!")
-python3 -m piperx_lab.cylinder_preview --plan --keep-alive "$@"
+python3 -m piperx_lab.cylinder_preview --plan --keep-alive --object-spec "$WORKSPACE/config/cylinder_object.json" "$@"

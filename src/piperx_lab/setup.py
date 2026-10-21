@@ -28,6 +28,7 @@ setup(
             'cube_pose = piperx_lab.cube_pose:main',
             'cylinder_target = piperx_lab.cylinder_target:main',
             'cylinder_preview = piperx_lab.cylinder_preview:main',
+            'grasp_audit = piperx_lab.grasp_audit:main',
             'board_check = piperx_lab.board_check:main',
         ],
     },

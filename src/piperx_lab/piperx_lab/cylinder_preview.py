@@ -30,7 +30,7 @@ from std_msgs.msg import String
 from tf2_ros import Buffer, TransformListener, TransformException
 from visualization_msgs.msg import Marker, MarkerArray
 
-from piperx_lab.cylinder_grasp import grasp_candidates, model_tip_transform
+from piperx_lab.cylinder_grasp import grasp_candidates, model_tip_transform, full_cylinder_geometry
 from piperx_lab.handeye import transform_from_ros
 from piperx_lab.model import installed_gripper_model_path, read_gripper_limit
 
@@ -147,10 +147,12 @@ class CylinderPreview(Node):
                     matrix[:3, :3] = rotation_with_z(normal)
                 else:
                     primitive.type = SolidPrimitive.CYLINDER
-                    primitive.dimensions = [base['observed_red_span_m'] + 0.010,
-                                             base['diameter_m'] / 2 + 0.003]
-                    matrix[:3, 3] = base['axis_reference_xyz_m']
-                    matrix[:3, :3] = rotation_with_z(base['axis_direction'])
+                    full = base.get('full_geometry')
+                    primitive.dimensions = ([full['height_m'], full['diameter_m'] / 2 + 0.003]
+                                            if full else [base['observed_red_span_m'] + 0.010,
+                                                          base['diameter_m'] / 2 + 0.003])
+                    matrix[:3, 3] = full['center_xyz_m'] if full else base['axis_reference_xyz_m']
+                    matrix[:3, :3] = rotation_with_z(full['axis_direction'] if full else base['axis_direction'])
                 obj.primitives = [primitive]
                 obj.primitive_poses = [pose_from_matrix(matrix)]
             request.scene.world.collision_objects.append(obj)
@@ -266,6 +268,7 @@ class CylinderPreview(Node):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--object-spec', type=Path, help='Measured upright cylinder specification JSON')
     parser.add_argument('--plan', action='store_true', help='Request plans via planning services only')
     parser.add_argument('--clear-scene', action='store_true', help='Remove only this preview node\'s two collision objects')
     parser.add_argument('--keep-alive', action='store_true', help='Keep the latched RViz markers available')
@@ -286,6 +289,13 @@ def main():
     try:
         node.wait(node.fresh, 20)
         sample = deepcopy(node.observation)
+        report['observation'] = sample
+        if args.object_spec:
+            spec = json.loads(args.object_spec.read_text())
+            if not spec.get('use_for_collision_planning'):
+                raise ValueError('Object specification is not enabled for collision planning')
+            sample['base']['full_geometry'] = full_cylinder_geometry(sample['base'], spec)
+            report['scene_scope'] = 'measured full cylinder and local tabletop patch; other obstacles unmodelled'
         initial = RobotState()
         initial.joint_state = deepcopy(node.joints)
         initial.is_diff = False

@@ -1,0 +1,11 @@
+{
+  "shape": "cylinder",
+  "diameter_m": 0.046,
+  "height_m": 0.08,
+  "source": "user_ruler_measurement_2026-10-21",
+  "appearance": "red body with white upper and lower ends",
+  "white_ends_within_measured_diameter_confirmed": true,
+  "upright_on_observed_support_confirmed": true,
+  "use_for_collision_planning": true,
+  "note": "User confirmed upright on table and white ends within 46 mm. Pose still inferred from observed axis/support; independent validation required."
+}

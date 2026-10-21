@@ -124,3 +124,39 @@ def support_patch(points_base, reference):
     return {'surface_point_m': surface.tolist(), 'normal': normal.tolist(),
             'rms_m': rms, 'inliers': int(best.sum()), 'patch_size_m': [0.40, 0.40, 0.02],
             'coverage': 'local_support_patch_only'}
+
+
+def full_cylinder_geometry(base, spec):
+    """Locate a measured upright cylinder from its axis and observed support plane."""
+    if not (spec.get('upright_on_observed_support_confirmed') and
+            spec.get('white_ends_within_measured_diameter_confirmed')):
+        raise ValueError('Upright placement and maximum end diameter are not confirmed')
+    diameter, height = float(spec['diameter_m']), float(spec['height_m'])
+    if not (math.isfinite(diameter) and math.isfinite(height) and 0 < diameter < .2 and 0 < height < .5):
+        raise ValueError('Invalid measured cylinder dimensions')
+    if abs(float(base['diameter_m']) - diameter) > .01:
+        raise ValueError('Observed diameter differs from measured object by more than 10 mm')
+    patch = base.get('support_patch')
+    if patch is None:
+        raise ValueError('Full cylinder pose needs an observed support plane')
+    axis = np.asarray(base['axis_direction'], dtype=float).copy()
+    normal = np.asarray(patch['normal'], dtype=float)
+    axis /= np.linalg.norm(axis)
+    normal /= np.linalg.norm(normal)
+    if np.dot(axis, normal) < 0:
+        axis = -axis
+    alignment = float(np.dot(axis, normal))
+    if alignment < math.cos(math.radians(15)):
+        raise ValueError(f'Observed axis/support normal angle {math.degrees(math.acos(np.clip(alignment, -1, 1))):.1f} deg exceeds upright tolerance 15 deg')
+    reference = np.asarray(base['axis_reference_xyz_m'], dtype=float)
+    surface = np.asarray(patch['surface_point_m'], dtype=float)
+    elevation = float(np.dot(reference - surface, normal) / alignment)
+    span = float(base['observed_red_span_m'])
+    if elevation - span / 2 < -.005 or elevation + span / 2 > height + .005:
+        raise ValueError('Visible red band conflicts with measured height or support plane')
+    bottom = reference - elevation * axis
+    return {'center_xyz_m': (bottom + height / 2 * axis).tolist(),
+            'axis_direction': axis.tolist(), 'diameter_m': diameter, 'height_m': height,
+            'source': 'measured_dimensions_axis_support_intersection',
+            'reference_height_above_bottom_m': elevation,
+            'pose_independently_validated': False}

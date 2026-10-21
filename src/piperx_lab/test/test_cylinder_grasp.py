@@ -37,3 +37,20 @@ def test_local_support_plane_with_noise_and_outliers():
     assert abs(patch['surface_point_m'][2] - 0.1) < 0.002
     assert patch['normal'][2] > 0.99
     assert patch['inliers'] > 550
+
+
+def test_measured_full_cylinder_uses_support_not_red_band_center():
+    from piperx_lab.cylinder_grasp import full_cylinder_geometry
+    base = {'axis_reference_xyz_m': [.4, -.1, .025], 'axis_direction': [0., 0., -1.],
+            'diameter_m': .044, 'observed_red_span_m': .04,
+            'support_patch': {'surface_point_m': [.4, -.1, 0.], 'normal': [0., 0., 1.]}}
+    spec = {'diameter_m': .046, 'height_m': .08,
+            'upright_on_observed_support_confirmed': True,
+            'white_ends_within_measured_diameter_confirmed': True}
+    full = full_cylinder_geometry(base, spec)
+    np.testing.assert_allclose(full['center_xyz_m'], [.4, -.1, .04])
+    assert not full['pose_independently_validated']
+    with pytest.raises(ValueError, match='conflicts'):
+        full_cylinder_geometry({**base, 'axis_reference_xyz_m': [.4, -.1, .09]}, spec)
+    with pytest.raises(ValueError, match='confirmed'):
+        full_cylinder_geometry(base, {**spec, 'upright_on_observed_support_confirmed': False})
