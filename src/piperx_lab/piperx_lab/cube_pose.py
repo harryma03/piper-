@@ -25,8 +25,9 @@ from sensor_msgs.msg import CameraInfo, Image
 from std_msgs.msg import Float32
 from tf2_ros import Buffer, TransformException, TransformListener
 
-from piperx_lab.camera_target import decode_color, decode_depth, largest_color_mask
-from piperx_lab.handeye import camera_model, transform_from_ros
+from piperx_lab.camera_target import decode_color, decode_depth
+from piperx_lab.handeye import transform_from_ros
+from piperx_lab.rgbd_geometry import aligned_frames_valid, color_region_points
 from piperx_lab.transforms import (BASE_FRAME, TARGET_FRAME, WRIST_FRAME,
                                    load_handeye, transform_points)
 from piperx_lab.workspace import workspace_root
@@ -34,27 +35,7 @@ from piperx_lab.workspace import workspace_root
 
 def cube_points_camera(color, depth, info, range_m, min_area=80):
     """Undistort all valid red pixels and return optical-frame XYZ in metres."""
-    if color.shape[:2] != depth.shape or depth.shape != (info.height, info.width):
-        raise ValueError('Aligned RGB-D and CameraInfo dimensions disagree')
-    if not math.isfinite(range_m) or range_m <= 0:
-        raise ValueError('Invalid depth range')
-    mask = largest_color_mask(color, 'red', min_area)
-    if mask is None:
-        raise ValueError('No red region large enough for a cube')
-    mask = cv2.erode(mask.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
-    valid = mask & (depth > 0)
-    if int(valid.sum()) < 80:
-        raise ValueError('Too few valid depth pixels inside the red cube')
-    ys, xs = np.nonzero(valid)
-    pixels = np.column_stack((xs, ys)).astype(np.float64).reshape(-1, 1, 2)
-    kind, k, d = camera_model(info)
-    rays = (cv2.fisheye.undistortPoints(pixels, k, d) if kind == 'fisheye'
-            else cv2.undistortPoints(pixels, k, d)).reshape(-1, 2)
-    z = depth[valid].astype(np.float64) * range_m / 65535.0
-    points = np.column_stack((rays[:, 0] * z, rays[:, 1] * z, z))
-    if not np.all(np.isfinite(points)):
-        raise ValueError('Red cube point cloud contains invalid coordinates')
-    return points, valid
+    return color_region_points(color, depth, info, range_m, 'red', min_area)
 
 
 def estimate_upright_cube(points_base, size_m=0.04, table_height=None,
@@ -137,7 +118,7 @@ class CubePose(Node):
         if self.range_m is None or time.monotonic() - self.last_report < 1.0:
             return
         self.last_report = time.monotonic()
-        if any(message.header.frame_id != TARGET_FRAME for message in bundle.values()):
+        if not aligned_frames_valid(bundle):
             self.get_logger().warn('Discarding RGB-D bundle with unexpected camera frame')
             return
         stamp = bundle['depth'].header.stamp

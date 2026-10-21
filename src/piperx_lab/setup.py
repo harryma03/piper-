@@ -26,6 +26,7 @@ setup(
             'target_base = piperx_lab.target_base:main',
             'target_check = piperx_lab.target_check:main',
             'cube_pose = piperx_lab.cube_pose:main',
+            'cylinder_target = piperx_lab.cylinder_target:main',
             'board_check = piperx_lab.board_check:main',
         ],
     },

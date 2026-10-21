@@ -80,6 +80,8 @@ ros2 run piperx_lab camera_target --color red --once --save-frame records/red_ta
 bash scripts/start_gazebo_vision.sh
 ```
 
+未知尺寸、红色侧面圆柱体的只读点云拟合与现场记录，见 [圆柱体视觉测量](docs/CYLINDER_VISION.md)。它估计可见曲面的直径和轴线，尚未确定完整高度和物体中心，也未执行抓取。
+
 ### 后续使用相机 IMU
 
 Vidu SDK 提供 IMU 读取接口：`GetImuData()` 可读取三轴陀螺仪 `GyroData[3]`、三轴加速度计 `AcceData[3]` 及各自时间戳；当前 C1W 是否输出有效 IMU 数据尚需实测。以后需要相机运动状态时，在 `src/vidu_ros2_wrapper` 中接入 IMU 流，发布 `sensor_msgs/Imu`，并验证时间戳、轴向和单位。当前 wrapper 尚未发布 IMU 话题。陀螺仪角速度不能替代相机到机械臂的手眼标定。
