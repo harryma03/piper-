@@ -1,0 +1,48 @@
+# RK3588 环境速查
+
+# 设备
+# 型号：正点原子 ATK-DLRK3588，Rockchip RK3588，arm64
+# CPU：4×Cortex-A55 + 4×Cortex-A76
+# 内存：15 GiB；Swap：未配置
+# 存储：115.2 GiB eMMC；根分区约 110 GiB，当前可用约 98 GiB
+# 系统：Ubuntu 22.04.5 LTS (Jammy)
+# 内核：Linux 6.12.69
+# 桌面：Ubuntu GNOME + GDM
+# 时区：Asia/Shanghai;
+
+# 用户
+# 用户名：alientek
+# Home：/home/alientek
+# Shell：/bin/bash
+
+
+# 网络与登录
+# Linux 热点：10.42.0.1/24
+# RK3588：10.42.0.49/24
+# SSH：ssh alientek@10.42.0.49
+# GNOME 当前桌面：RDP 10.42.0.49:3389
+# XRDP 独立会话：RDP 10.42.0.49:3390
+# Remmina：remmina -c rdp://alientek@10.42.0.49
+
+# Clash
+# 当前状态：RK3588通过局域网连接主机ltt-Liunx-ROS2 Clash一并虚拟网卡转发
+
+# 已安装工具
+# GCC/G++ 11.4.0；CMake 3.22.1；Ninja 1.10.1；Git 2.34.1
+# Python 3.10.12；pip 22.0.2；python3-venv
+# curl、wget、vim、nano、tmux、htop、jq、ripgrep、fd-find
+# OpenSSH Server、v4l-utils、GNOME Remote Desktop、XRDP、xorgxrdp
+# fd-find 的命令是 fdfind，目前没有 fd 别名
+# ROS 2-Humble、Docker、miniconda
+
+# GPU / NPU
+# GPU：/dev/dri/card1、renderD129
+# NPU：/dev/dri/card2、renderD130
+# 用户已在 video/render 组
+# RKNN Runtime、MPP、RGA 和硬件编解码尚未验证
+
+# VS Code
+# 模式：电脑端 VS Code 1.134.0 x64 + Remote-SSH + RK3588 ARM64 Server
+# 远端主要扩展：Python、Pylance、C/C++ ARM64、CMake Tools、XML、ChatGPT ARM64
+
+
