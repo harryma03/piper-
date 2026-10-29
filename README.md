@@ -215,7 +215,7 @@ ros2 run piperx_lab target_base                 # 持续换算
 抓取用的几何量在 `src/piperx_lab/piperx_lab/grasp_plan.py`：`plan_top_down_grasp()` 把基座坐标下的一个点展开成 pre-grasp → grasp → retreat 三个竖直路点，并给出“工具轴朝下”的姿态四元数；`gripper_width_for_target()` 按目标宽度加余量给出夹爪开口。这两个模块是纯几何函数，不接触 ROS，也已经用单元测试覆盖。
 
 ```bash
-PYTHONPATH=src/piperx_lab python3 -m pytest src/piperx_lab/test -q
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH="src/piperx_lab:${PYTHONPATH:-}" python3 -m pytest src/piperx_lab/test -q
 ```
 
 ## 后续开发约定
@@ -225,3 +225,5 @@ PYTHONPATH=src/piperx_lab python3 -m pytest src/piperx_lab/test -q
 后续视觉识别、仿真实机统一接口、抓取闭环与 VLA 接入的模块规划、数据契约和分阶段验收见 [视觉与 VLA 框架规划](docs/VISION_SIM_REAL_VLA_PLAN.md)。
 
 圆柱体的实时测量、基座坐标换算和仅规划抓取预览见 [圆柱视觉与规划说明](docs/CYLINDER_VISION.md)。入口为 `bash scripts/start_cylinder_preview.sh`；需先启动相机、实机反馈和 MoveIt，不会发送执行命令。
+
+Gazebo 圆柱接触抓取试验见 [仿真抓取说明](docs/GAZEBO_CYLINDER_GRASP.md)。入口 `bash scripts/start_gazebo_cylinder_grasp.sh`，独立使用 ROS 域 183；已知物体位置的圆柱抓取在仿真中通过，视觉定位和实机抓取尚待验证。

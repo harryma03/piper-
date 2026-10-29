@@ -1,0 +1,728 @@
+{
+  "repository": "agilexrobotics/agx_arm_sim",
+  "commit": "f8cd8b147c75d59e14f90fb0646770eefa268ed0",
+  "subset": true,
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "982ea27d0b8ac540a3e80e34b390c7103884eaac",
+      "size": 4298,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/982ea27d0b8ac540a3e80e34b390c7103884eaac"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/base_link.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f9ad9da087272dd1916f7f3f872d5236f6a0c0fd",
+      "size": 535084,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/f9ad9da087272dd1916f7f3f872d5236f6a0c0fd"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link1.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f29ff2628b6a8bf620b4f9fb7039df790749154d",
+      "size": 938084,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/f29ff2628b6a8bf620b4f9fb7039df790749154d"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2c3ab29ec2ebba230d78d6a708c880dfa44761fb",
+      "size": 3595884,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/2c3ab29ec2ebba230d78d6a708c880dfa44761fb"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_0.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "924bb0a9ccc6a507e5628b3a2b83c36f59d744d8",
+      "size": 3388067,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/924bb0a9ccc6a507e5628b3a2b83c36f59d744d8"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_1.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "262de1f2d008a6bf8792d8b44edb89406cfb3290",
+      "size": 100404,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/262de1f2d008a6bf8792d8b44edb89406cfb3290"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_10.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5886173998ab8eafaa21701deec9226d2b8ce557",
+      "size": 29780,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/5886173998ab8eafaa21701deec9226d2b8ce557"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_11.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "586de235e67c454ed397293405e26119cf9ccb37",
+      "size": 58388,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/586de235e67c454ed397293405e26119cf9ccb37"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_12.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "982f10a53bced368a7fb82157e4288a7665ca7e6",
+      "size": 55035,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/982f10a53bced368a7fb82157e4288a7665ca7e6"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_13.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "abcb3f2460749f88499f1a3abbf9c805826cd0bc",
+      "size": 29672,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/abcb3f2460749f88499f1a3abbf9c805826cd0bc"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_14.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "69bc1a88702fe0ed9045ad06a4f8939e578a4649",
+      "size": 59191,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/69bc1a88702fe0ed9045ad06a4f8939e578a4649"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_15.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "128bcd8395b8c8631bc79363b5822ac0ac7ae169",
+      "size": 29440,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/128bcd8395b8c8631bc79363b5822ac0ac7ae169"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_16.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "76758e637adbb14f21cb31518c5e8c9156dcdc2c",
+      "size": 53558,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/76758e637adbb14f21cb31518c5e8c9156dcdc2c"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_17.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c53240fa43f9dcdf6f96466b44e260f2011e03e3",
+      "size": 29282,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/c53240fa43f9dcdf6f96466b44e260f2011e03e3"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_18.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "934cd775b02d3f27b76aaa55566e24b2021a4850",
+      "size": 23998,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/934cd775b02d3f27b76aaa55566e24b2021a4850"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_19.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c0f3f76481793cf576a2613b6810ff55ff7d022b",
+      "size": 32458,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/c0f3f76481793cf576a2613b6810ff55ff7d022b"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_2.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4a04a6f8e2eef12e2dd1dcc6428c1e284635cbb4",
+      "size": 99886,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/4a04a6f8e2eef12e2dd1dcc6428c1e284635cbb4"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_20.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dc8ea788e6d412bc359e52cc1f4a1840cb6e25e3",
+      "size": 43818,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/dc8ea788e6d412bc359e52cc1f4a1840cb6e25e3"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_21.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7e4c835dffe9dcce19cbbd4f301f78c78e0ea732",
+      "size": 39259,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/7e4c835dffe9dcce19cbbd4f301f78c78e0ea732"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_22.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9fdde4b128f4092f540ea2c50aca1e999fbcf2ed",
+      "size": 31374,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/9fdde4b128f4092f540ea2c50aca1e999fbcf2ed"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_23.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1b7f4e269775dce0552f913fc98edd9f5f32ff77",
+      "size": 43903,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/1b7f4e269775dce0552f913fc98edd9f5f32ff77"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_24.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3ec40a243ca91926275061d3468ca3284a12e3c5",
+      "size": 39527,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/3ec40a243ca91926275061d3468ca3284a12e3c5"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_25.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e568bb2700c9784cc92f29f65ac7cf4a110726c0",
+      "size": 24112,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/e568bb2700c9784cc92f29f65ac7cf4a110726c0"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_26.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2c81040969a506013ca2a3b8badbeb14aa43246b",
+      "size": 51975,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/2c81040969a506013ca2a3b8badbeb14aa43246b"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_27.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ef55bae968cbe24790f7c8c2d4f3b4540c714446",
+      "size": 24076,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/ef55bae968cbe24790f7c8c2d4f3b4540c714446"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_28.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fe2c38fb6c9bf6af03f6a9e28fcb5322b5e8cdab",
+      "size": 12885,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/fe2c38fb6c9bf6af03f6a9e28fcb5322b5e8cdab"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_29.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9957b564961c242008b5a179c6087b88c6d29dea",
+      "size": 25091,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/9957b564961c242008b5a179c6087b88c6d29dea"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_3.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a2a135543a76f5df78d3888206996f8fdea17fbd",
+      "size": 282938,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/a2a135543a76f5df78d3888206996f8fdea17fbd"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_30.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a2e5bfc24b74a865649c18b4fe4856921e3790d7",
+      "size": 12281,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/a2e5bfc24b74a865649c18b4fe4856921e3790d7"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_31.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9fe240f25985e186851dc8debf66d11268d7ad42",
+      "size": 4621269,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/9fe240f25985e186851dc8debf66d11268d7ad42"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_4.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "db3a82820429a5ab4c39d30f2415b412f75dc1ad",
+      "size": 274532,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/db3a82820429a5ab4c39d30f2415b412f75dc1ad"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_5.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c0e8444d72a6c8e38063d2257194e2b51ae046ea",
+      "size": 29648,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/c0e8444d72a6c8e38063d2257194e2b51ae046ea"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_6.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7fbebe1584ac5e4267ca1a54e31c5f160a1346ae",
+      "size": 30086,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/7fbebe1584ac5e4267ca1a54e31c5f160a1346ae"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_7.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "91f8ee363309eef0a15ae12f0b197b4f6499242b",
+      "size": 52048,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/91f8ee363309eef0a15ae12f0b197b4f6499242b"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_8.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "633943c8a1234beb3908de33e467d06e53740d8d",
+      "size": 53838,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/633943c8a1234beb3908de33e467d06e53740d8d"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_9.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "970bff37d093ba8b38d60ef7a83ad3fad89d3c60",
+      "size": 55513,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/970bff37d093ba8b38d60ef7a83ad3fad89d3c60"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_gray.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "923708414163c51c1c9489c7fa709335d61af4c9",
+      "size": 41284,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/923708414163c51c1c9489c7fa709335d61af4c9"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link2_red.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "550716b85041a917e8b2cde6f2fadee9b7341804",
+      "size": 191084,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/550716b85041a917e8b2cde6f2fadee9b7341804"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "56c2bf45abd6d8ce6d5bfe6d732a98a04d3d4126",
+      "size": 2703584,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/56c2bf45abd6d8ce6d5bfe6d732a98a04d3d4126"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_0.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "89d51e5cd3df49ed1041fcb4258e4e879f0b32e2",
+      "size": 314534,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/89d51e5cd3df49ed1041fcb4258e4e879f0b32e2"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_1.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b7b3c27ad3a3ee9d59ff086b9ff05ab595ee904c",
+      "size": 4237,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/b7b3c27ad3a3ee9d59ff086b9ff05ab595ee904c"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_10.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2661e3f854c88e11c4fc9302220a9f980176163f",
+      "size": 11975,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/2661e3f854c88e11c4fc9302220a9f980176163f"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_11.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "69d22bed5ee9a4b06d26cfcfdacdb84b67bbd181",
+      "size": 20407,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/69d22bed5ee9a4b06d26cfcfdacdb84b67bbd181"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_12.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0d4be88d9a8c3d88acf89aaec65abf835757eac5",
+      "size": 24375,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/0d4be88d9a8c3d88acf89aaec65abf835757eac5"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_13.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3ae077dfb71032101efaca5611c5cfae05919742",
+      "size": 28095,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/3ae077dfb71032101efaca5611c5cfae05919742"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_14.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f4490e198523fbd1b1adb25c822b3a87e9f8cde8",
+      "size": 2236466,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/f4490e198523fbd1b1adb25c822b3a87e9f8cde8"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_15.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6f22241063df81a5e97674d2c328584529ef7a81",
+      "size": 361249,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/6f22241063df81a5e97674d2c328584529ef7a81"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_16.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d4a1b1413af1d8ca04fc59581b6fb6a20aefac07",
+      "size": 410182,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/d4a1b1413af1d8ca04fc59581b6fb6a20aefac07"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_17.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "234a7c6288eedfcbb3fd3fba78dcbd3e6284a6ac",
+      "size": 328948,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/234a7c6288eedfcbb3fd3fba78dcbd3e6284a6ac"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_18.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b2d121bdf9f82e0798da4ee97c69426c0ac61130",
+      "size": 485678,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/b2d121bdf9f82e0798da4ee97c69426c0ac61130"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_19.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7e64cd778ee19102e61c18760019ec08bf5826cf",
+      "size": 441404,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/7e64cd778ee19102e61c18760019ec08bf5826cf"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_2.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2f3a976a1a6c4b2109413a5a55e5916c4217d84e",
+      "size": 12777,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/2f3a976a1a6c4b2109413a5a55e5916c4217d84e"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_20.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a5c87b9b1f6f35a0d304520a64d722fce46399ee",
+      "size": 371434,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/a5c87b9b1f6f35a0d304520a64d722fce46399ee"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_21.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "97ce428312cca564d967d40a179d62eebe6113a4",
+      "size": 366151,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/97ce428312cca564d967d40a179d62eebe6113a4"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_22.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dd39250c92fc4b2c9a199f822d67d05f597e0691",
+      "size": 406667,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/dd39250c92fc4b2c9a199f822d67d05f597e0691"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_23.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0e58ac61f76b332db341814ad90d74a80a08a42d",
+      "size": 372095,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/0e58ac61f76b332db341814ad90d74a80a08a42d"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_24.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f41da9e0ce366e6918882bf5b42aa4fd63f34f6b",
+      "size": 27674,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/f41da9e0ce366e6918882bf5b42aa4fd63f34f6b"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_25.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a0b23581501bf4f1f7e6e340432cfb41fbdf5db5",
+      "size": 27969,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/a0b23581501bf4f1f7e6e340432cfb41fbdf5db5"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_26.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8b66780a09363755fb84832b7c3cd6e024884e61",
+      "size": 28049,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/8b66780a09363755fb84832b7c3cd6e024884e61"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_27.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e883c37fefcce519944d4a80f07dfd1c9e021692",
+      "size": 593048,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/e883c37fefcce519944d4a80f07dfd1c9e021692"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_28.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5ef8d71905df344ca70250abfbfa55a41e654745",
+      "size": 385832,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/5ef8d71905df344ca70250abfbfa55a41e654745"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_3.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e3a7f3ae8e66722fcd0f9f5f22f751957ea44ba5",
+      "size": 21159,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/e3a7f3ae8e66722fcd0f9f5f22f751957ea44ba5"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_4.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4af6cab45da9e05e9eb90493f663d36f8a78de60",
+      "size": 24969,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/4af6cab45da9e05e9eb90493f663d36f8a78de60"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_5.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9204ecd986ad85d6de6b1ea83a8699169bdc03ad",
+      "size": 29033,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/9204ecd986ad85d6de6b1ea83a8699169bdc03ad"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_7.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8c5459d693f248a4225b1e42e80039d07cef3831",
+      "size": 306051,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/8c5459d693f248a4225b1e42e80039d07cef3831"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_8.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "796feaae0975f1c9229ad3a1f501dd8899695384",
+      "size": 18175,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/796feaae0975f1c9229ad3a1f501dd8899695384"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link3_9.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5bd04d4074f137e6243ce270e1eab9391f3bfbab",
+      "size": 4135,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/5bd04d4074f137e6243ce270e1eab9391f3bfbab"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link4.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6077b622cd7a06473ce703221106f5c5e731c6cb",
+      "size": 730484,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/6077b622cd7a06473ce703221106f5c5e731c6cb"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link4_2.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fefe061fa3bbc98a09cb1236f232556fb0c13d44",
+      "size": 496499,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/fefe061fa3bbc98a09cb1236f232556fb0c13d44"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link4_3.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4adfc2d3621ff44dc83d042f0b375b8420c6eb8c",
+      "size": 389642,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/4adfc2d3621ff44dc83d042f0b375b8420c6eb8c"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link4_4.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f5a73534e71a4ac9a518802d8fe3b582e1281623",
+      "size": 188048,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/f5a73534e71a4ac9a518802d8fe3b582e1281623"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link4_5.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e5622b5e62b63de72379f600f288a50333a7e55d",
+      "size": 390968,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/e5622b5e62b63de72379f600f288a50333a7e55d"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link4_6.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b8b354583edf3de432fe3511b73cc03c734fd560",
+      "size": 315504,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/b8b354583edf3de432fe3511b73cc03c734fd560"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6b6f5ee6ea996a33b198ce3e0580b50d5a30696f",
+      "size": 1147884,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/6b6f5ee6ea996a33b198ce3e0580b50d5a30696f"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5_2.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7fde8264152a29a2929cb53b5d38e7a3f12a759c",
+      "size": 313883,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/7fde8264152a29a2929cb53b5d38e7a3f12a759c"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5_3.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6d3054b5551f83714b6d94b3f291ff54b28067db",
+      "size": 86794,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/6d3054b5551f83714b6d94b3f291ff54b28067db"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5_4.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "bea66bcdd237eca0971238ac4bb85ab6bdcc2510",
+      "size": 485246,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/bea66bcdd237eca0971238ac4bb85ab6bdcc2510"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5_5.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9a50f9c7171e911ce4072fead77ea9d225698dc5",
+      "size": 237047,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/9a50f9c7171e911ce4072fead77ea9d225698dc5"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5_6.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ff6895ae234a94c80e6b92bae235536053b63a91",
+      "size": 689623,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/ff6895ae234a94c80e6b92bae235536053b63a91"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5_7.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b4e07e09eaaaedd9f4d2d46d15a48cc707e97e44",
+      "size": 1081204,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/b4e07e09eaaaedd9f4d2d46d15a48cc707e97e44"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link5_8.obj",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e6c71f1dd5e873d089e4e8e56821cedacf39888d",
+      "size": 335283,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/e6c71f1dd5e873d089e4e8e56821cedacf39888d"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link6.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "40e0d81827fb1f9ff69424d0328d355cf2c803a7",
+      "size": 671184,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/40e0d81827fb1f9ff69424d0328d355cf2c803a7"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link7.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ef2a30ca89fe970588b4fdbfcf58e9ceb6b8565e",
+      "size": 91984,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/ef2a30ca89fe970588b4fdbfcf58e9ceb6b8565e"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/link8.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f8e75c1d7bc6e77b7cd2cc5d30ef773c88fc5e64",
+      "size": 91884,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/f8e75c1d7bc6e77b7cd2cc5d30ef773c88fc5e64"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/assets/linke2_dark_gray.stl",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2a33b3dac2dd03fb2e92e65e8a0b24500a8c478c",
+      "size": 17284,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/2a33b3dac2dd03fb2e92e65e8a0b24500a8c478c"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/piper.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1270421db3b4cb27dfc09dd8e27ac02fc4d9f738",
+      "size": 1378578,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/1270421db3b4cb27dfc09dd8e27ac02fc4d9f738"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/piper.xml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "251af8978b16a5a0a0a840d7ecd2ea0fa10fdf98",
+      "size": 14538,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/251af8978b16a5a0a0a840d7ecd2ea0fa10fdf98"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/piper_body.xml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9f52c3baa8a04a740af54abd13c14871a51937c2",
+      "size": 11473,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/9f52c3baa8a04a740af54abd13c14871a51937c2"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/piper_slope_demo.xml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7037c973784f78974f81643fe44ab86461979d4e",
+      "size": 6382,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/7037c973784f78974f81643fe44ab86461979d4e"
+    },
+    {
+      "path": "mujoco/agilex_arm/agilex_piper/scene.xml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "02547ddea6495b7a671eacf6c6579453baeef4fc",
+      "size": 865,
+      "url": "https://api.github.com/repos/agilexrobotics/agx_arm_sim/git/blobs/02547ddea6495b7a671eacf6c6579453baeef4fc"
+    }
+  ],
+  "failures": []
+}

@@ -7,6 +7,26 @@
 /tmp/
 /sdk/
 
+# Local Isaac Sim runtimes, downloads, caches and the demo virtual environment.
+/.isaac-bootstrap/
+/.isaac-cache/
+/.isaac-python/
+/.isaac-venv/
+/.demo-venv/
+
+# Third-party source and nested Git repositories are restored separately.
+# Keep the small provenance manifests and accompanying license/readmes.
+/third_party/*
+!/third_party/GraspGen/
+!/third_party/agx_arm_sim/
+/third_party/GraspGen/*
+!/third_party/GraspGen/SOURCE_MANIFEST.json
+!/third_party/GraspGen/LICENSE
+!/third_party/GraspGen/README.md
+/third_party/agx_arm_sim/*
+!/third_party/agx_arm_sim/SOURCE_MANIFEST.json
+!/third_party/agx_arm_sim/README.md
+
 # AgileX is fetched at a pinned revision from upstream; keep its nested Git
 # checkout out of this repository and apply patches/agx_arm_ros_local.patch.
 /src/agx_arm_ros/
