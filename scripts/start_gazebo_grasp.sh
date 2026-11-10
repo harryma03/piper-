@@ -35,6 +35,10 @@ setsid gzserver "$OUT/grasp.world" -s libgazebo_ros_init.so -s libgazebo_ros_fac
 PIDS+=("$!")
 setsid ros2 run robot_state_publisher robot_state_publisher "$OUT/robot.urdf" > /tmp/piper-grasp-rsp.log 2>&1 &
 PIDS+=("$!")
+if [[ "${PIPER_SIM_RGBD:-0}" == 1 ]]; then
+ setsid python3 sim/gazebo/camera_bridge.py --ros-args -p use_sim_time:=true > /tmp/piper-grasp-camera.log 2>&1 &
+ PIDS+=("$!")
+fi
 ros2 run gazebo_ros spawn_entity.py -entity piper_contact -file "$OUT/robot.urdf"
 for controller in joint_state_broadcaster arm_controller gripper_controller; do
  ros2 run controller_manager spawner "$controller" --controller-manager /controller_manager --controller-manager-timeout 45

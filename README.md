@@ -179,6 +179,16 @@ ros2 run piperx_lab board_check --once --save-image records   # 同时存一张�
 
 2026-10-13 已从 **12 组 Piper + OKULO-C1W-H106/940 实机样本**求得 `calibration/handeye_result.json`。外参为 `link6 → camera_depth_frame`，平移约 **(-102.96, -18.62, +32.96) mm**；平均标定板重投影 RMS **1.59 px**，固定板最大位置散差 **5.82 mm**、角度散差 **1.30°**，项目质量检查 `quality_pass=true`。逐一剔除一个样本重新求解，外参相对全量解的最大变化为 **2.69 mm / 0.63°**。这些是样本内部一致性指标，并非独立测得的抓取精度。`target_base --source real` 只接受 `robot=piper`、`mode=real` 且质量检查通过的结果，不能误用旧 Piper X 仿真结果；首次用于实机前仍需用已知点核对坐标方向和误差。此前按 `link5` 安装假设写下的说明已作废，不应与 `link6` 样本混用。
 
+2026-11-10 已在同一套机械臂与相机上重新采集 9 组多姿态样本，并替换当前
+`calibration/handeye_result.json`。新外参平移约 **(-91.17, -19.98, +76.13) mm**，
+腕部姿态跨度 **49.92°**，平均标定板重投影 RMS **1.37 px**，固定板最大位置散差
+**10.52 mm**、角度散差 **2.33°**，项目质量检查通过；逐一剔除一个样本时，
+平移最大变化 **10.99 mm**、旋转最大变化 **1.23°**。原始样本在
+`calibration/samples_recal_20261110/`，求解结果备份在
+`calibration/handeye_result_recal_20261110.json`，替换前旧结果备份为
+`calibration/handeye_result_before_recal_20261110.json`。新结果的固定板位置
+一致性不如 2026-10-13 的旧结果，部署抓取前仍应完成独立已知点验收。
+
 实机启动入口是 `scripts/start_real.sh`，必须显式指定 CAN 接口；末端类型默认使用已确认的 `agx_gripper`：
 
 ```bash
@@ -187,7 +197,7 @@ bash scripts/start_real.sh --can can0
 
 该入口默认 `auto_enable:=false`，启用官方驱动的执行期控制门控，并使 MoveIt 跟随 `/feedback/joint_states`。本地驱动配置已让门控同时跟踪手臂和夹爪轨迹。需在确认实机状态后显式使能机械臂；脚本也提供 `--enable` 选项。实机样本证明驱动、关节反馈、TF 和相机采集曾在现场联通；当前会话未重新连接硬件，不能据此判断此刻的 CAN 或相机状态。夹爪门控和完整抓取流程仍未得到现场验证。
 
-`scripts/real_handeye_run.py` 提供相对起始关节姿态的 12 个采样目标，默认只打印预览；只有显式加 `--execute` 才会发送真实轨迹并调用 `handeye_capture`。它使用固定关节偏移，不做碰撞规划，执行前要先检查每个目标在现场是否有足够空间。已有的 12 组实机样本不需要重新运行这个脚本。
+`scripts/real_handeye_run.py` 提供相对起始关节姿态的 12 个采样目标，默认只打印预览；只有显式加 `--execute` 才会发送真实轨迹并调用 `handeye_capture`。`--out-dir` 可以把新一轮样本写入独立目录。它使用固定关节偏移，不做碰撞规划，执行前要先检查每个目标在现场是否有足够空间。
 
 实机连接后先用 `ros2 run piperx_lab joint_move --mode real` 只读当前关节状态。确认周围空间、机械臂状态和末端配置后，可通过官方服务 `ros2 service call /enable_agx_arm std_srvs/srv/SetBool '{data: true}'` 使能；随后仍需先运行不带 `--execute` 的目标校验。`--mode real` 与假硬件共用同一个 Piper 限位校验，但不包含碰撞规划；有障碍物的动作应通过 MoveIt 规划后执行。
 
@@ -227,3 +237,5 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH="src/piperx_lab:${PYTHONPATH:-}" pyt
 圆柱体的实时测量、基座坐标换算和仅规划抓取预览见 [圆柱视觉与规划说明](docs/CYLINDER_VISION.md)。入口为 `bash scripts/start_cylinder_preview.sh`；需先启动相机、实机反馈和 MoveIt，不会发送执行命令。
 
 Gazebo 圆柱接触抓取试验见 [仿真抓取说明](docs/GAZEBO_CYLINDER_GRASP.md)。入口 `bash scripts/start_gazebo_cylinder_grasp.sh`，独立使用 ROS 域 183；已知物体位置的圆柱抓取在仿真中通过，视觉定位和实机抓取尚待验证。
+
+模拟 RGB-D 识别到圆柱抓取和随机位置评测见 [仿真视觉抓取说明](docs/GAZEBO_VISION_GRASP.md)。

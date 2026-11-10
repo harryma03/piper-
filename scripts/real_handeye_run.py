@@ -89,9 +89,11 @@ class PoseRunner(Node):
                                % (outcome.status, outcome.result.error_string))
 
 
-def capture(timeout):
+def capture(timeout, out_dir=None):
     command = ['ros2', 'run', 'piperx_lab', 'handeye_capture', '--mode', 'real',
                '--timeout', str(timeout)]
+    if out_dir is not None:
+        command.extend(['--out-dir', str(out_dir)])
     result = subprocess.run(command, text=True, capture_output=True)
     text = (result.stdout + result.stderr).strip().splitlines()
     return result.returncode, (text[-1] if text else '')
@@ -103,6 +105,8 @@ def main(argv=None):
     parser.add_argument('--settle', type=float, default=2.0)
     parser.add_argument('--capture-timeout', type=float, default=15.0)
     parser.add_argument('--min-samples', type=int, default=8)
+    parser.add_argument('--out-dir', type=str,
+                        help='sample directory; defaults to calibration/samples')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--execute', action='store_true',
                         help='Actually move the real arm; otherwise print the planned poses')
@@ -144,7 +148,7 @@ def main(argv=None):
             print('%2d moving %s' % (index, delta), flush=True)
             node.move(target, duration=args.duration)
             time.sleep(args.settle)
-            code, message = capture(args.capture_timeout)
+            code, message = capture(args.capture_timeout, args.out_dir)
             print('   %s %s' % ('saved' if code == 0 else 'skip', message), flush=True)
             saved += code == 0
         print('returning to start pose', flush=True)

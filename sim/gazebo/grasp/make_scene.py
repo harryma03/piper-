@@ -1,8 +1,15 @@
-"""Generate the contact-grasp scene from the official Piper model."""
+"""Generate the contact-grasp scene from the official Piper model.
+
+Objects are parameterized by shape and dimensions through PIPER_SIM_*
+variables; the Gazebo model name stays "cylinder" because contact, state and
+evaluation code depend on it.
+"""
 
 from pathlib import Path
 import json
+import math
 import os
+import struct
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -23,14 +30,104 @@ solver_iters = (
 finger_geometry = os.environ.get("PIPER_SIM_FINGER_GEOMETRY", "mesh")
 object_shape = os.environ.get("PIPER_SIM_OBJECT_SHAPE", "cylinder")
 object_mass = float(os.environ.get("PIPER_SIM_OBJECT_MASS", "0.06"))
+object_dims = os.environ.get("PIPER_SIM_OBJECT_DIMS", "")
+object_yaw = float(os.environ.get("PIPER_SIM_OBJECT_YAW_DEG", "0"))
+object_friction = float(os.environ.get("PIPER_SIM_OBJECT_FRICTION", str(friction)))
+object_mesh = os.environ.get("PIPER_SIM_OBJECT_MESH", "")
+rgbd = os.environ.get("PIPER_SIM_RGBD", "0") == "1"
+occluder = os.environ.get("PIPER_SIM_OCCLUDER", "0") == "1"
+view_index = int(os.environ.get("PIPER_SIM_VIEW", "0"))
+object_x = float(os.environ.get("PIPER_SIM_OBJECT_X", "0.45"))
+object_y = float(os.environ.get("PIPER_SIM_OBJECT_Y", "0"))
+if not math.isfinite(object_x) or not math.isfinite(object_y) or not 0.3 <= object_x <= 0.55 or abs(object_y) > 0.12:
+    raise ValueError("Simulated object position is outside the supported test area")
 control_rate = int(os.environ.get("PIPER_SIM_CONTROL_RATE", "200"))
 arm_pid = os.environ.get("PIPER_SIM_ARM_PID", "0") == "1"
 arm_kp = float(os.environ.get("PIPER_SIM_ARM_KP", "50"))
 arm_kd = float(os.environ.get("PIPER_SIM_ARM_KD", "2"))
 if not 10 <= control_rate <= 1000:
     raise ValueError("Invalid control update rate")
-if object_shape not in ("cylinder", "cube") or not 0.001 <= object_mass <= 1:
-    raise ValueError("Invalid object shape or mass")
+SHAPES = ("cylinder", "cube", "sphere", "box", "bar", "mesh")
+if object_shape not in SHAPES or not 0.001 <= object_mass <= 1:
+    raise ValueError(f"Invalid object shape (choose from {SHAPES}) or mass")
+if view_index not in (0, 1, 2):
+    raise ValueError("PIPER_SIM_VIEW must be 0, 1 or 2")
+if not math.isfinite(object_yaw) or abs(object_yaw) > 180:
+    raise ValueError("PIPER_SIM_OBJECT_YAW_DEG must be finite within +/-180")
+if not 0.1 <= object_friction <= 10:
+    raise ValueError("PIPER_SIM_OBJECT_FRICTION must be between 0.1 and 10")
+
+
+def parse_dims(text, count, default):
+    """Parse a comma-separated dimension list with an exact element count."""
+    values = [float(part) for part in text.split(",")] if text.strip() else list(default)
+    if len(values) != count or not all(math.isfinite(v) and 0.005 <= v <= 0.3 for v in values):
+        raise ValueError(f"Object dimensions {text!r} must be {count} values in [0.005, 0.3] m")
+    return values
+
+
+if object_shape == "cylinder":
+    diameter, height = parse_dims(object_dims, 2, [0.046, 0.08])
+    dims = [diameter, height]
+elif object_shape == "sphere":
+    (diameter,) = parse_dims(object_dims, 1, [0.04])
+    dims = [diameter]
+elif object_shape in ("cube", "box", "bar"):
+    default = {"cube": [0.046, 0.046, 0.046],
+               "box": [0.05, 0.04, 0.03],
+               "bar": [0.09, 0.02, 0.02]}[object_shape]
+    dx, dy, dz = parse_dims(object_dims, 3, default)
+    dims = [dx, dy, dz]
+elif object_shape == "mesh":
+    if not object_mesh:
+        raise ValueError("PIPER_SIM_OBJECT_MESH is required for the mesh shape")
+    mesh_path = Path(object_mesh)
+    if not mesh_path.is_file():
+        raise ValueError(f"Object mesh file does not exist: {mesh_path}")
+
+
+def mesh_aabb(path):
+    """Axis-aligned bounding box of a binary/ASCII STL or OBJ mesh, in metres."""
+    data = path.read_bytes()
+    vertices = []
+    if path.suffix.lower() == ".obj":
+        for line in data.decode("ascii", errors="replace").splitlines():
+            parts = line.split()
+            if parts[:1] == ["v"] and len(parts) >= 4:
+                vertices.append([float(v) for v in parts[1:4]])
+    elif data[:5] == b"solid" and b"facet" in data[:2048]:
+        for line in data.decode("ascii", errors="replace").splitlines():
+            parts = line.split()
+            if parts[:1] == ["vertex"] and len(parts) >= 4:
+                vertices.append([float(v) for v in parts[1:4]])
+    elif len(data) >= 84:
+        (count,) = struct.unpack_from("<I", data, 80)
+        if len(data) >= 84 + 50 * count:
+            for i in range(count):
+                values = struct.unpack_from("<12f", data, 84 + 50 * i)
+                vertices += [values[3:6], values[6:9], values[9:12]]
+    if not vertices:
+        raise ValueError(f"Unsupported or empty object mesh: {path}")
+    low = [min(v[i] for v in vertices) for i in range(3)]
+    high = [max(v[i] for v in vertices) for i in range(3)]
+    return [high[i] - low[i] for i in range(3)], len(vertices)
+
+
+if object_shape == "mesh":
+    mesh_size, mesh_vertex_count = mesh_aabb(mesh_path)
+    dims = mesh_size
+    if any(not 0.005 <= v <= 0.3 for v in dims):
+        raise ValueError(f"Mesh extents {dims} are outside the supported [0.005, 0.3] m range")
+
+if object_shape == "cylinder":
+    height = dims[1]
+    center_z = -0.15 + height / 2 + 0.001
+elif object_shape == "sphere":
+    height = dims[0]
+    center_z = -0.15 + height / 2 + 0.001
+else:
+    height = dims[2]
+    center_z = -0.15 + height / 2 + 0.001
 if not 0 <= min_contact_depth <= 0.001:
     raise ValueError("PIPER_SIM_MIN_CONTACT_DEPTH must be between 0 and 0.001 m")
 if not 0 <= finger_kd <= 100:
@@ -44,7 +141,7 @@ if not 0.0001 <= step_size <= 0.001 or (solver_iters is not None and not 1 <= so
 if finger_geometry not in ("mesh", "box"):
     raise ValueError("PIPER_SIM_FINGER_GEOMETRY must be mesh or box")
 subprocess.run(
-    [sys.executable, str(root_path / "sim/gazebo/make_robot.py"), str(out / "robot.urdf")],
+    [sys.executable, str(root_path / "sim/gazebo/make_robot.py"), str(out / "robot.urdf")] + (["--rgbd"] if rgbd else []),
     check=True,
 )
 r = ET.parse(out / "robot.urdf").getroot()
@@ -74,8 +171,9 @@ for g in r.findall("gazebo"):
     for p in list(g.findall("plugin")):
         g.remove(p)
     # Leave arm gravity disabled as in the existing model. Object gravity stays on.
-    for sensor in g.findall("sensor"):
-        g.remove(sensor)
+    if not rgbd:
+        for sensor in g.findall("sensor"):
+            g.remove(sensor)
 dummy = r.find("link[@name='gripper_link']")
 inertial = add(dummy, "inertial")
 add(inertial, "mass", {"value": "0.01"})
@@ -88,7 +186,14 @@ arm_system = add(r, "ros2_control", {"name": "GazeboArm", "type": "system"})
 add(add(arm_system, "hardware"), "plugin", text="gazebo_ros2_control/GazeboSystem")
 hand_system = add(r, "ros2_control", {"name": "GazeboHand", "type": "system"})
 add(add(hand_system, "hardware"), "plugin", text="gazebo_ros2_control/GazeboSystem")
-initial = [0.0, 0.8, -0.8, 0.0, 0.8, 0.0]
+initial = ([0.0, 2.8, -2.4, 0.0, -0.1, 0.0] if rgbd else
+           [0.0, 0.8, -0.8, 0.0, 0.8, 0.0])
+# Camera-view variants: base yaw shifts the wrist-camera azimuth so the same
+# object is seen from a different angle; only used with the RGBD pose.
+if rgbd and view_index == 1:
+    initial[0] = 0.3
+elif rgbd and view_index == 2:
+    initial[0] = -0.3
 for name, value in list(zip([f"joint{i}" for i in range(1, 7)], initial)) + [
     ("gripper", 0.07),
     ("gripper_joint1", 0.035),
@@ -184,57 +289,107 @@ for typ in ["collision", "visual"]:
     plane = add(add(e, "geometry"), "plane")
     add(plane, "normal", text="0 0 1")
     add(plane, "size", text="10 10")
+
+
+def object_inertia(shape, mass, dims):
+    """Diagonal inertia for each supported primitive; mesh uses its AABB box."""
+    if shape == "cylinder":
+        radius, height = dims[0] / 2, dims[1]
+        ixx = mass * (3 * radius**2 + height**2) / 12
+        return [ixx, ixx, mass * radius**2 / 2]
+    if shape == "sphere":
+        return [mass * dims[0] ** 2 / 10] * 3
+    dx, dy, dz = dims
+    return [mass * (dy**2 + dz**2) / 12,
+            mass * (dx**2 + dz**2) / 12,
+            mass * (dx**2 + dy**2) / 12]
+
+
 # Keep the model name for the existing state and contact subscriptions.
-height = 0.046 if object_shape == "cube" else 0.08
-center_z = -0.15 + height / 2 + 0.001
 obj = add(world, "model", {"name": "cylinder"})
-add(obj, "pose", text=f".45 0 {center_z} 0 0 0")
+add(obj, "pose", text=f"{object_x} {object_y} {center_z} 0 0 {math.radians(object_yaw)}")
 l = add(obj, "link", {"name": "body"})
 inertial = add(l, "inertial")
 add(inertial, "mass", text=str(object_mass))
 i = add(inertial, "inertia")
-if object_shape == "cube":
-    inertia = object_mass * 0.046**2 / 6
-    values = [("ixx", inertia), ("iyy", inertia), ("izz", inertia)]
-else:
-    values = [
-        ("ixx", 0.00004 * object_mass / 0.06),
-        ("iyy", 0.00004 * object_mass / 0.06),
-        ("izz", 0.000016 * object_mass / 0.06),
-    ]
-for k, v in values + [("ixy", 0), ("ixz", 0), ("iyz", 0)]:
+inertia_values = object_inertia(object_shape, object_mass, dims)
+for k, v in zip(("ixx", "iyy", "izz"), inertia_values):
     add(i, k, text=str(v))
+for k in ("ixy", "ixz", "iyz"):
+    add(i, k, text="0")
 e = add(l, "collision", {"name": "cylinder_collision"})
 geometry = add(e, "geometry")
-if object_shape == "cube":
-    add(add(geometry, "box"), "size", text=".046 .046 .046")
-else:
+if object_shape == "cylinder":
     geo = add(geometry, "cylinder")
-    add(geo, "radius", text=".023")
-    add(geo, "length", text=".08")
+    add(geo, "radius", text=str(dims[0] / 2))
+    add(geo, "length", text=str(dims[1]))
+elif object_shape == "sphere":
+    geo = add(geometry, "sphere")
+    add(geo, "radius", text=str(dims[0] / 2))
+elif object_shape == "mesh":
+    geo = add(geometry, "mesh")
+    add(geo, "uri", text=f"file://{mesh_path.resolve()}")
+else:
+    add(add(geometry, "box"), "size", text=" ".join(str(v) for v in dims))
 fr = add(add(add(e, "surface"), "friction"), "ode")
-add(fr, "mu", text=str(friction))
-add(fr, "mu2", text=str(friction))
-if object_shape == "cube":
-    e = add(l, "visual", {"name": "red"})
-    add(add(add(e, "geometry"), "box"), "size", text=".046 .046 .046")
+add(fr, "mu", text=str(object_friction))
+add(fr, "mu2", text=str(object_friction))
+
+
+def red_visual(name, geometry_element, pose=None):
+    e = add(l, "visual", {"name": name})
+    if pose:
+        add(e, "pose", text=pose)
+    e.append(geometry_element)
     m = add(e, "material")
     add(m, "ambient", text=".9 .02 .02 1")
     add(m, "diffuse", text=".9 .02 .02 1")
-else:
+
+
+if object_shape == "cylinder":
+    # Legacy red side band with white caps, as in the earlier fixed scenes.
     for name, z, length, color in [
-        ("red", 0, 0.06, ".9 .02 .02 1"),
-        ("top", 0.035, 0.01, ".95 .95 .95 1"),
-        ("bottom", -0.035, 0.01, ".95 .95 .95 1"),
+        ("red", 0, max(0.0, dims[1] - 0.02), ".9 .02 .02 1"),
+        ("top", dims[1] / 2 - 0.005, 0.01, ".95 .95 .95 1"),
+        ("bottom", -dims[1] / 2 + 0.005, 0.01, ".95 .95 .95 1"),
     ]:
         e = add(l, "visual", {"name": name})
         add(e, "pose", text=f"0 0 {z} 0 0 0")
         geo = add(add(e, "geometry"), "cylinder")
-        add(geo, "radius", text=".023")
+        add(geo, "radius", text=str(dims[0] / 2))
         add(geo, "length", text=str(length))
         m = add(e, "material")
         add(m, "ambient", text=color)
         add(m, "diffuse", text=color)
+elif object_shape == "sphere":
+    geo = add(ET.Element("tmp"), "geometry")
+    sphere = add(geo, "sphere")
+    add(sphere, "radius", text=str(dims[0] / 2))
+    red_visual("red", geo)
+elif object_shape == "mesh":
+    geo = add(ET.Element("tmp"), "geometry")
+    mesh = add(geo, "mesh")
+    add(mesh, "uri", text=f"file://{mesh_path.resolve()}")
+    red_visual("red", geo)
+else:
+    geo = add(ET.Element("tmp"), "geometry")
+    add(add(geo, "box"), "size", text=" ".join(str(v) for v in dims))
+    red_visual("red", geo)
+if occluder:
+    # A white blocker beside the object partially occludes it from tilted
+    # wrist views. It is static and deliberately not the target colour.
+    occ = add(world, "model", {"name": "occluder"})
+    add(occ, "static", text="true")
+    add(occ, "pose", text=f"{object_x + 0.055} {object_y - 0.04} {-0.15 + 0.03} 0 0 0")
+    ol = add(occ, "link", {"name": "blocker"})
+    oe = add(ol, "collision", {"name": "blocker_collision"})
+    add(add(add(oe, "geometry"), "box"), "size", text="0.05 0.02 0.06")
+    add(add(add(add(oe, "surface"), "friction"), "ode"), "mu", text="1.0")
+    ove = add(ol, "visual", {"name": "blocker_visual"})
+    add(add(add(ove, "geometry"), "box"), "size", text="0.05 0.02 0.06")
+    om = add(ove, "material")
+    add(om, "ambient", text=".93 .93 .93 1")
+    add(om, "diffuse", text=".93 .93 .93 1")
 p = add(world, "plugin", {"name": "state", "filename": "libgazebo_ros_state.so"})
 add(add(p, "ros"), "namespace", text="/gazebo")
 add(p, "update_rate", text="30")
@@ -246,6 +401,7 @@ ET.ElementTree(w).write(out / "grasp.world")
             "finger_kp": finger_kp,
             "finger_kd": finger_kd,
             "friction": friction,
+            "object_friction": object_friction,
             "step_size_s": step_size,
             "solver_iterations": solver_iters,
             "control_update_rate_hz": control_rate,
@@ -254,7 +410,13 @@ ET.ElementTree(w).write(out / "grasp.world")
             "arm_kd": arm_kd,
             "finger_geometry": finger_geometry,
             "object_shape": object_shape,
+            "object_dims_m": dims,
+            "object_yaw_deg": object_yaw,
+            "object_mesh": str(mesh_path) if object_shape == "mesh" else None,
             "object_mass_kg": object_mass,
+            "occluder": occluder,
+            "view_index": view_index,
+            "rgbd_enabled": rgbd,
             "object_height_m": height,
             "object_center_z_m": center_z,
         },
